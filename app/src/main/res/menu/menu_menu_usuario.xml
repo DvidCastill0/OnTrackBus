@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/item_Canales_de_Rutas"
+        android:icon="@android:drawable/stat_notify_chat"
+        android:title="CanalesDeRutas"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/item_Contacto_De_Confiaza"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="Contacto de Confianza"
+        app:showAsAction="always" />
+    <item
+    android:id="@+id/item_Mi_Actividad_Diaria"
+    android:icon="@android:drawable/ic_menu_recent_history"
+    android:title="Mi Actividad Diaria"
+    app:showAsAction="never" />
+
+    <item
+        android:id="@+id/item_Actualizar_Mis_Datos"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="Mi Perfil"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/item_Ayuda"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:title="Ayuda"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/item_Cerrar_Sesion"
+        android:icon="@drawable/common_full_open_on_phone"
+        android:title="Cerrar Sesion"
+        app:showAsAction="never" />
+
+
+</menu>

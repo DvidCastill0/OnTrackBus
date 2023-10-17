@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CanalesDeRutas">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/azultoolbar">
+
+
+        <ListView
+            android:id="@+id/lv_CanalesDeRutas"
+            android:layout_width="350dp"
+            android:layout_height="400dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edt_ovalo_confondoblanco"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/actv_BuscarCanalDeRuta" />
+
+        <AutoCompleteTextView
+            android:id="@+id/actv_BuscarCanalDeRuta"
+            android:layout_width="280dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/spinner_rutas_seleccionadas"
+            android:completionHint="N° Rutas Disponibles"
+            android:completionThreshold="0"
+            android:hint="Escriba un Numero de Ruta"
+            android:paddingLeft="15dp"
+            android:textColorHint="#7E7D7D"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/lv_CanalesDeRutas"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btn_BuscarCanalDeRuta"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/lupita_icono"
+            app:layout_constraintEnd_toEndOf="@+id/lv_CanalesDeRutas"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/actv_BuscarCanalDeRuta"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btn_AbrirCanal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_ovalo_confondoblanco"
+            android:text="Abrir"
+            android:textColor="#4CAF50"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.25"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lv_CanalesDeRutas" />
+
+        <Button
+            android:id="@+id/btn_BorrarCanal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_ovalo_confondoblanco"
+            android:text="Borrar"
+            android:textColor="#F44336"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.75"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lv_CanalesDeRutas" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

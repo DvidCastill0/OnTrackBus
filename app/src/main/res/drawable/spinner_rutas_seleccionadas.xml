@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="#FFFFFF" />
+
+                    <stroke android:width="3dp" android:color="#3F51B5" />
+
+                    <padding android:bottom="1dp" android:left="1dp" android:right="1dp" android:top="1dp" />
+
+                    <corners android:radius="50dp" />
+
+                </shape>
+            </item>
+
+
+            <!--    <item>
+
+               <bitmap android:gravity="center|right"
+                  android:src="@android:drawable/arrow_down_float">
+              </bitmap>
+
+               2
+               Eston comentario en XML, ojo porque tendrás que ponerlo bien para que funcione.
+               Y sí, es de varias líneas.
+            </item> -->
+        </layer-list>
+    </item>
+
+
+</selector>

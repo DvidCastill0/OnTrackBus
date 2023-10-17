@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_ContactoDeConfianza"
+    android:background="@color/azultoolbar"
+    tools:context=".Contacto_De_Confianza">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/lv_reportesMiActividad"
+                android:layout_width="379dp"
+                android:layout_height="400dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/edt_ovalo_confondoblanco"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_superior" />
+
+            <Button
+                android:id="@+id/btn_ver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@drawable/btn_ovalo_confondoblanco"
+                android:text="Ver"
+                android:textColor="#4CAF50"
+                app:layout_constraintEnd_toStartOf="@+id/btn_borrar"
+                app:layout_constraintTop_toBottomOf="@+id/lv_reportesMiActividad" />
+
+            <Button
+                android:id="@+id/btn_borrar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/btn_ovalo_confondoblanco"
+                android:text="Borrar"
+                android:textColor="#A5A5A5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/lv_reportesMiActividad" />
+
+            <Button
+                android:id="@+id/btn_limpiar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/btn_ovalo_confondoblanco"
+                android:text="Vaciar"
+                android:textColor="#E91E63"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btn_borrar"
+                app:layout_constraintTop_toBottomOf="@+id/lv_reportesMiActividad" />
+
+            <TextView
+                android:id="@+id/tv_superior"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Reportes de Contactos de Confianza"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+
+</FrameLayout>
