@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 
 public class RecuperarContrasena extends Fragment {
     private Button btn_Volver;
-    private EditText edt_RecuperarContraseña;
-    private Button btn_RecuperarContraseña;
+    private EditText edt_RecuperarContrasena;
+    private Button btn_RecuperarContrasena;
 
     private FirebaseAuth mAuth;
 
@@ -47,10 +47,10 @@ public class RecuperarContrasena extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         mDialog = new ProgressDialog(getContext());
 
-        edt_RecuperarContraseña = ResetPassword.findViewById(R.id.edtCorreoRestablecerContraseña);
+        edt_RecuperarContrasena = ResetPassword.findViewById(R.id.edtCorreoRestablecerContrasena);
 
-        btn_RecuperarContraseña = ResetPassword.findViewById(R.id.btn_Recuperar_Contraseña);
-        btn_RecuperarContraseña.setOnClickListener(new View.OnClickListener() {
+        btn_RecuperarContrasena = ResetPassword.findViewById(R.id.btn_Recuperar_Contrasena);
+        btn_RecuperarContrasena.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(comprobacionCorreo()==true){
@@ -58,19 +58,19 @@ public class RecuperarContrasena extends Fragment {
                     mDialog.setCanceledOnTouchOutside(false);
                     mDialog.show();
                     mAuth.setLanguageCode("es");
-                    mAuth.sendPasswordResetEmail(edt_RecuperarContraseña.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    mAuth.sendPasswordResetEmail(edt_RecuperarContrasena.getText().toString().trim()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
-                                edt_RecuperarContraseña.setText("");
-                                Toast.makeText(getActivity(),"Se ha enviado un correo para Reestablecer tu contraseña a: "+edt_RecuperarContraseña.getText().toString().trim(), Toast.LENGTH_SHORT).show();
+                                edt_RecuperarContrasena.setText("");
+                                Toast.makeText(getActivity(),"Se ha enviado un correo para Reestablecer tu contraseña a: "+edt_RecuperarContrasena.getText().toString().trim(), Toast.LENGTH_SHORT).show();
                                 FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                                 InicioDeSesion fragment = new InicioDeSesion();
                                 transaction.replace(R.id.contenedor_main_activity,fragment);
                                 transaction.commit();
                             }else{
                                 if (task.getException() instanceof FirebaseAuthInvalidUserException){
-                                    edt_RecuperarContraseña.setError("Correo No Registrado");
+                                    edt_RecuperarContrasena.setError("Correo No Registrado");
                                     Toast.makeText(getActivity(),"Este Correo no esta Asociado a ninguna cuenta, Por favor Registrate",Toast.LENGTH_SHORT).show();
                                 }else {
                                     Toast.makeText(getActivity(),"Algo Salio Mal porfavor reportalo.",Toast.LENGTH_SHORT).show();
@@ -100,7 +100,7 @@ public class RecuperarContrasena extends Fragment {
 
     private boolean comprobacionCorreo(){
         // El email a validar
-        String correo = edt_RecuperarContraseña.getText().toString().trim();
+        String correo = edt_RecuperarContrasena.getText().toString().trim();
         // Patrón para validar el email
         Pattern pattern = Pattern
                 .compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
@@ -109,9 +109,9 @@ public class RecuperarContrasena extends Fragment {
         Matcher mather = pattern.matcher(correo);
         boolean bandera=false;
         if (correo.equals("")){
-            edt_RecuperarContraseña.setError("Dato Requerido");
+            edt_RecuperarContrasena.setError("Dato Requerido");
         }else if (mather.find() == false){
-            edt_RecuperarContraseña.setError("Correo Invalido, Porfavor escribe un correo real.");
+            edt_RecuperarContrasena.setError("Correo Invalido, Porfavor escribe un correo real.");
         }else {
             bandera=true;
         }

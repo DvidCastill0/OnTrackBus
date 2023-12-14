@@ -50,7 +50,7 @@ public class InicioDeSesion extends Fragment {
     private DatabaseReference OTBReference;
     //variables para botones y cajas de texto
     private Button btnEntrar,btnRegistro;
-    private EditText edtcorreo,edtcontraseña;
+    private EditText edtcorreo,edtcontrasena;
     private int contadorRMFDisponible=1;
     private int contadorRMFNumero=1;
     private Rutas or= new Rutas();
@@ -91,7 +91,7 @@ public class InicioDeSesion extends Fragment {
 
         //union de las cajas de texto con java
         edtcorreo = vistaInicioDeSesion.findViewById(R.id.edt_correo);
-        edtcontraseña =vistaInicioDeSesion.findViewById(R.id.edt_contraseña);
+        edtcontrasena =vistaInicioDeSesion.findViewById(R.id.edt_contrasena);
 
         //se instancia la barra de progreso
         progressDialog= new ProgressDialog(getActivity());
@@ -130,12 +130,12 @@ public class InicioDeSesion extends Fragment {
 
     private void IniciarSesion(){
         String correo = edtcorreo.getText().toString().trim();
-        String contraseña = edtcontraseña.getText().toString().trim();
+        String contraseña = edtcontrasena.getText().toString().trim();
 
         if (comprobacionCorreo()==false){
             //revisa que el correo sea valido y no este vacio
         }else if(contraseña.equals("")){
-            edtcontraseña.setError("Dato Requerido");
+            edtcontrasena.setError("Dato Requerido");
             Toast.makeText(getActivity(),"Ingrese Una Contraseña", Toast.LENGTH_SHORT).show();
         }else{
             progressDialog.setMessage("Iniciando Sesion...");
@@ -233,7 +233,7 @@ public class InicioDeSesion extends Fragment {
                             edtcorreo.setError("Correo No Registrado");
                             Toast.makeText(getActivity(),"Este Correo no esta Asociado a ninguna cuenta, Por favor Registrate",Toast.LENGTH_SHORT).show();
                         }else if (task.getException() instanceof FirebaseAuthInvalidCredentialsException){
-                            edtcontraseña.setError("Contraseña Incorrecta");
+                            edtcontrasena.setError("Contraseña Incorrecta");
                             Toast.makeText(getActivity(),"La Contraseña no coincide con el Correo Ingresado.",Toast.LENGTH_LONG).show();
                         }else{
                             Toast.makeText(getActivity(),"Algo Salio mal, favor de reportar",Toast.LENGTH_LONG).show();
@@ -393,9 +393,9 @@ public class InicioDeSesion extends Fragment {
         btnEntrar.setOnClickListener(v -> IniciarSesion());
         //endregion
 
-        //region btnRestablecerContraseña
+        //region btnRestablecerContrasena
         //Boton para ir a fragmento donde se recupera contraseña.
-        reestablecerContraseña = mainView.findViewById(R.id.btnRestablecerContraseña);
+        reestablecerContraseña = mainView.findViewById(R.id.btnRestablecerContrasena);
         //poner texto en subrayado
         reestablecerContraseña.setPaintFlags(reestablecerContraseña.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         reestablecerContraseña.setOnClickListener(v -> {

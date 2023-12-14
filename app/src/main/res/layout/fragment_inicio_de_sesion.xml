@@ -60,7 +60,7 @@
                     android:textSize="24sp" />
 
                 <EditText
-                    android:id="@+id/edt_contraseña"
+                    android:id="@+id/edt_contrasena"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10pt"
@@ -92,7 +92,7 @@
                     android:text="o Registrarse" />
 
                 <TextView
-                    android:id="@+id/btnRestablecerContraseña"
+                    android:id="@+id/btnRestablecerContrasena"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

@@ -102,7 +102,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/etNombre" />
 
             <EditText
-                android:id="@+id/etContraseñaRegistro"
+                android:id="@+id/etContrasenaRegistro"
                 android:layout_width="330dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="16dp"
@@ -116,7 +116,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/etCorreoElectronicoRegistro" />
 
             <EditText
-                android:id="@+id/etContraseñaRegistroConfirmacion"
+                android:id="@+id/etContrasenaRegistroConfirmacion"
                 android:layout_width="330dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="16dp"
@@ -127,7 +127,7 @@
                 android:paddingLeft="5pt"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etContraseñaRegistro" />
+                app:layout_constraintTop_toBottomOf="@+id/etContrasenaRegistro" />
 
             <EditText
                 android:id="@+id/etContactoConfianzaRegistro"
@@ -141,7 +141,7 @@
                 android:paddingLeft="5pt"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etContraseñaRegistroConfirmacion" />
+                app:layout_constraintTop_toBottomOf="@+id/etContrasenaRegistroConfirmacion" />
 
             <AutoCompleteTextView
                 android:id="@+id/actvRutaMasFrecuentadaRegistro"

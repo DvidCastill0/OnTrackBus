@@ -93,8 +93,8 @@ public class RegistroDeUsuarios extends Fragment {
         et_Nombre = vistaRegistro.findViewById(R.id.etNombre);
         et_Apellido = vistaRegistro.findViewById(R.id.etApellido);
         et_Correo = vistaRegistro.findViewById(R.id.etCorreoElectronicoRegistro);
-        et_Contraseña = vistaRegistro.findViewById(R.id.etContraseñaRegistro);
-        et_ContraseñaConfirmacion = vistaRegistro.findViewById(R.id.etContraseñaRegistroConfirmacion);
+        et_Contraseña = vistaRegistro.findViewById(R.id.etContrasenaRegistro);
+        et_ContraseñaConfirmacion = vistaRegistro.findViewById(R.id.etContrasenaRegistroConfirmacion);
         et_ContactoConfianza = vistaRegistro.findViewById(R.id.etContactoConfianzaRegistro);
 
         actv_RMF = vistaRegistro.findViewById(R.id.actvRutaMasFrecuentadaRegistro);
