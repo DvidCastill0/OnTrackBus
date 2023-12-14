@@ -90,7 +90,7 @@ public class InicioDeSesion extends Fragment {
 
 
         //union de las cajas de texto con java
-        edtcorreo =vistaInicioDeSesion.findViewById(R.id.edt_correo);
+        edtcorreo = vistaInicioDeSesion.findViewById(R.id.edt_correo);
         edtcontraseña =vistaInicioDeSesion.findViewById(R.id.edt_contraseña);
 
         //se instancia la barra de progreso
@@ -98,18 +98,8 @@ public class InicioDeSesion extends Fragment {
 
         //se referencia la clase auth
         mAuth = FirebaseAuth.getInstance();
-        //Declaracion de boton para entrar al Menu de usuarios en caso de que los datos puestos en las cajas de texto sean correctos
-        btnEntrar = (Button) vistaInicioDeSesion.findViewById(R.id.btn_entrar);
-        btnEntrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                IniciarSesion();
 
-            }
-        });
-        //boton para cambiar al fragmento de  registro
-        btnRegistro = (Button) vistaInicioDeSesion.findViewById(R.id.btn_registro);
-
+        setOnClicksEvents(vistaInicioDeSesion);
 
         //Instancear variable de base de datos
         OTBReference = FirebaseDatabase.getInstance().getReference();
@@ -126,26 +116,6 @@ public class InicioDeSesion extends Fragment {
                         bundle.putString("ruta"+contadorRMFDisponible,or.getNombreDeRuta());
                         contadorRMFDisponible++;
                     }
-
-
-                    btnRegistro.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            //se llama a la clase a la cual cambiaremos y se crea un objetode  tipo bundle ya que desde aqui haremos la descarga de rutas a seleccionar al registrarse
-                            RegistroDeUsuarios fragmento = new RegistroDeUsuarios();
-                            //Se aactiva la clase para la transicion de fragmento
-                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                            //se le agregan valores al bundle para pasarlos a otra interfaz
-                            bundle.putInt("cantidadDeRutas",contadorRMFDisponible-1);
-                            //se envia al bundle acompañado del objeto que abria el siguiente fragmento
-                            fragmento.setArguments(bundle);
-                            //se hace la trancisionde fragmento remplazando el fragmento en la actividad principal y se hace commit.
-                            transaction.replace(R.id.contenedor_main_activity,fragmento);
-                            transaction.commit();
-
-                        }
-                    });
-
                 }
             }
 
@@ -155,23 +125,6 @@ public class InicioDeSesion extends Fragment {
             }
         });
 
-
-        //Boton para ir a fragmento donde se recupera contraseña.
-        reestablecerContraseña = vistaInicioDeSesion.findViewById(R.id.btnRestablecerContraseña);
-        //poner texto en subrayado
-        reestablecerContraseña.setPaintFlags(reestablecerContraseña.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        reestablecerContraseña.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //se llama a la clase a la cual cambiaremos
-                RecuperarContrasena fragmento = new RecuperarContrasena();
-                //Se aactiva la clase para la transicion de fragmento
-                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                //se hace la trancisionde fragmento remplazando el fragmento en la actividad principal y se hace commit.
-                transaction.replace(R.id.contenedor_main_activity,fragmento);
-                transaction.commit();
-            }
-        });
         return vistaInicioDeSesion;
     }
 
@@ -319,11 +272,12 @@ public class InicioDeSesion extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         //revisar conexion a internet
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
-            if (mAuth.getCurrentUser() != null){
+            if (currentUser != null){
 
 
                 //bara de progreso en lo que se obtienen las direcciones
@@ -412,5 +366,49 @@ public class InicioDeSesion extends Fragment {
         }
 
 }
+
+    //region OnClicks Buttons
+    private void setOnClicksEvents(View mainView){
+
+        //region btnRegistro
+        btnRegistro = (Button) mainView.findViewById(R.id.btn_registro);
+        btnRegistro.setOnClickListener(v -> {
+            //se llama a la clase a la cual cambiaremos y se crea un objetode  tipo bundle ya que desde aqui haremos la descarga de rutas a seleccionar al registrarse
+            RegistroDeUsuarios fragmento = new RegistroDeUsuarios();
+            //Se aactiva la clase para la transicion de fragmento
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            //se le agregan valores al bundle para pasarlos a otra interfaz
+            bundle.putInt("cantidadDeRutas",contadorRMFDisponible-1);
+            //se envia al bundle acompañado del objeto que abria el siguiente fragmento
+            fragmento.setArguments(bundle);
+            //se hace la trancisionde fragmento remplazando el fragmento en la actividad principal y se hace commit.
+            transaction.replace(R.id.contenedor_main_activity,fragmento);
+            transaction.commit();
+        });
+        //endregion
+
+        //region btnEntrar
+        //Declaracion de boton para entrar al Menu de usuarios en caso de que los datos puestos en las cajas de texto sean correctos
+        btnEntrar = (Button) mainView.findViewById(R.id.btn_entrar);
+        btnEntrar.setOnClickListener(v -> IniciarSesion());
+        //endregion
+
+        //region btnRestablecerContraseña
+        //Boton para ir a fragmento donde se recupera contraseña.
+        reestablecerContraseña = mainView.findViewById(R.id.btnRestablecerContraseña);
+        //poner texto en subrayado
+        reestablecerContraseña.setPaintFlags(reestablecerContraseña.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        reestablecerContraseña.setOnClickListener(v -> {
+                    //se llama a la clase a la cual cambiaremos
+                    RecuperarContrasena fragmento = new RecuperarContrasena();
+                    //Se activa la clase para la transicion de fragmento
+                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    //se hace la trancision de fragmento remplazando el fragmento en la actividad principal y se hace commit.
+                    transaction.replace(R.id.contenedor_main_activity, fragmento);
+                    transaction.commit();
+                });
+        //endregion
+    }
+    //endregion
 
 }

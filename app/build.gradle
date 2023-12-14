@@ -35,7 +35,7 @@ dependencies {
 
     //google maps implementaciones
     implementation 'com.google.android.gms:play-services-location:17.0.0'
-    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
 
     //implementar soporte a v4
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

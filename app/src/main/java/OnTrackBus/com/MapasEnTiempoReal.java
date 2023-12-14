@@ -131,7 +131,6 @@ public class MapasEnTiempoReal extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         Bundle datosrutas = getArguments();
 
         //obtenemos los valores de ubicacion desde el bundle para la primera vez que se abre la app latitud y longitud de usuario no obligatorio
@@ -347,88 +346,82 @@ public class MapasEnTiempoReal extends Fragment implements OnMapReadyCallback {
         } else {
             btn_OrientacionRuta.setText("<-");
         }
-        btn_OrientacionRuta.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (orientacionRuta.equals("ida")) {
-                    orientacionRuta = "vuelta";
-                } else {
-                    orientacionRuta = "ida";
+        btn_OrientacionRuta.setOnClickListener(v -> {
+            if (orientacionRuta.equals("ida")) {
+                orientacionRuta = "vuelta";
+            } else {
+                orientacionRuta = "ida";
+            }
+            Bundle bundleRecargar = new Bundle();
+
+            bundleRecargar.putString("OrientacionRuta", orientacionRuta);
+            bundleRecargar.putInt("CantidadDeRutas", contadorRutaNumeroAbordado);
+            //se pasa el correo de confianza
+            bundleRecargar.putString("contactoConfianza", correoConfianza);
+            bundleRecargar.putString("RutaSeleccionada", rutaSeleccionada);
+
+
+            //se envian las rutas predeterminadas del usuario junto a la ruta selccionada
+            for (int contadorarray = 0; contadorarray < 3; contadorarray++) {
+                if (rutasRecargar.get(contadorarray) != null) {
+                    bundleRecargar.putString("RMF" + contadorarray, rutasRecargar.get(contadorarray));
                 }
-                Bundle bundleRecargar = new Bundle();
-
-                bundleRecargar.putString("OrientacionRuta", orientacionRuta);
-                bundleRecargar.putInt("CantidadDeRutas", contadorRutaNumeroAbordado);
-                //se pasa el correo de confianza
-                bundleRecargar.putString("contactoConfianza", correoConfianza);
-                bundleRecargar.putString("RutaSeleccionada", rutaSeleccionada);
-
-
-                //se envian las rutas predeterminadas del usuario junto a la ruta selccionada
-                for (int contadorarray = 0; contadorarray < 3; contadorarray++) {
-                    if (rutasRecargar.get(contadorarray) != null) {
-                        bundleRecargar.putString("RMF" + contadorarray, rutasRecargar.get(contadorarray));
-                    }
-
-                }
-
-                // se pasan las rutas seleccionadas disponibles junto a la cantidad de ellas
-                int contadorRD2 = contadorRutaNumeroAbordado - 1;
-                int contadorRD0 = 1;
-                //se obtiene el numero de la primera ruta seleccionada
-                for (int contadorRD = 0; contadorRD < contadorRD2; contadorRD++) {
-                    //se obtiene losnombres de las rutas disponibles.zza
-                    bundleRecargar.putString("Ruta" + contadorRD0, rutasdisponibles.get(contadorRD));
-                    contadorRD0++;
-                }
-
-
-                //intent para iniciar la actividad siguiente
-                Intent intentBuscarOtraruta = new Intent(getActivity(), pasadorSpinner.class);
-                // Agregas el Bundle al Intent e inicias ActivityB
-                intentBuscarOtraruta.putExtras(bundleRecargar);
-                getActivity().finish();
-                startActivity(intentBuscarOtraruta);
-
-
 
             }
+
+            // se pasan las rutas seleccionadas disponibles junto a la cantidad de ellas
+            int contadorRD2 = contadorRutaNumeroAbordado - 1;
+            int contadorRD0 = 1;
+            //se obtiene el numero de la primera ruta seleccionada
+            for (int contadorRD = 0; contadorRD < contadorRD2; contadorRD++) {
+                //se obtiene losnombres de las rutas disponibles.zza
+                bundleRecargar.putString("Ruta" + contadorRD0, rutasdisponibles.get(contadorRD));
+                contadorRD0++;
+            }
+
+
+            //intent para iniciar la actividad siguiente
+            Intent intentBuscarOtraruta = new Intent(getActivity(), pasadorSpinner.class);
+            // Agregas el Bundle al Intent e inicias ActivityB
+            intentBuscarOtraruta.putExtras(bundleRecargar);
+            getActivity().finish();
+            startActivity(intentBuscarOtraruta);
+
+
+
         });
 
         //funcionalidad ya voy en camino
         btn_voyEnCamino = vistaMapasEnTiempoReal.findViewById(R.id.btn_voy_en_camino);
-        btn_voyEnCamino.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btn_voyEnCamino.setOnClickListener(v -> {
 
-                // Creamos un nuevo Bundle ahora para pasar los datos al fragmento de mapas
-                Bundle args2 = new Bundle();
-                int contadorRD2 = contadorRutaNumeroAbordado - 1;
-                int contadorRD0 = 1;
-                //se obtiene el numero de la primera ruta seleccionada
-                for (int contadorRD = 0; contadorRD < contadorRD2; contadorRD++) {
-                    //se obtiene losnombres de las rutas disponibles.zza
-                    args2.putString("Ruta" + contadorRD0, rutasdisponibles.get(contadorRD));
-                    contadorRD0++;
-                }
-
-                //se pasa el correo de confianza
-                args2.putString("contactoConfianza", correoConfianza);
-
-                args2.putInt("CantidadDeRutas", contadorRutaNumeroAbordado);
-
-                args2.putString("orientacion",orientacionRuta);
-
-                args2.putString("rutaSeleccionadaNumero",rutaSeleccionadaNumero);
-                args2.putString("rutaSeleccionadaAbordado", rutaSeleccionada);
-
-                //intent para iniciar la actividad siguiente
-                Intent intentAbordado = new Intent(getActivity(), notificacionPantallaBloqueo.class);
-                // Agregas el Bundle al Intent e inicias ActivityB
-                intentAbordado.putExtras(args2);
-                startActivity(intentAbordado);
-
+            // Creamos un nuevo Bundle ahora para pasar los datos al fragmento de mapas
+            Bundle args2 = new Bundle();
+            int contadorRD2 = contadorRutaNumeroAbordado - 1;
+            int contadorRD0 = 1;
+            //se obtiene el numero de la primera ruta seleccionada
+            for (int contadorRD = 0; contadorRD < contadorRD2; contadorRD++) {
+                //se obtiene losnombres de las rutas disponibles.zza
+                args2.putString("Ruta" + contadorRD0, rutasdisponibles.get(contadorRD));
+                contadorRD0++;
             }
+
+            //se pasa el correo de confianza
+            args2.putString("contactoConfianza", correoConfianza);
+
+            args2.putInt("CantidadDeRutas", contadorRutaNumeroAbordado);
+
+            args2.putString("orientacion",orientacionRuta);
+
+            args2.putString("rutaSeleccionadaNumero",rutaSeleccionadaNumero);
+            args2.putString("rutaSeleccionadaAbordado", rutaSeleccionada);
+
+            //intent para iniciar la actividad siguiente
+            Intent intentAbordado = new Intent(getActivity(), notificacionPantallaBloqueo.class);
+            // Agregas el Bundle al Intent e inicias ActivityB
+            intentAbordado.putExtras(args2);
+            startActivity(intentAbordado);
+
         });
 
 
@@ -470,28 +463,22 @@ public class MapasEnTiempoReal extends Fragment implements OnMapReadyCallback {
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         //dar funcionalidad a boton mi ubicacion.
-        btn_mi_ubicacion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                userFLPC2 = LocationServices.getFusedLocationProviderClient(getActivity());
-                userFLPC2.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            Double latuserubicacion = location.getLatitude();
-                            Double lnguserubicacion = location.getLongitude();
+        btn_mi_ubicacion.setOnClickListener(v -> {
+            userFLPC2 = LocationServices.getFusedLocationProviderClient(getActivity());
+            userFLPC2.getLastLocation().addOnSuccessListener(getActivity(), location -> {
+                // Got last known location. In some rare situations this can be null.
+                if (location != null) {
+                    Double latuserubicacion = location.getLatitude();
+                    Double lnguserubicacion = location.getLongitude();
 
 
-                            //variables para actualizar camara a la paraa mas cercana
-                            LatLng coordenadasmiubicacion = new LatLng(latuserubicacion,lnguserubicacion);
-                            CameraUpdate miUbicacionboton = CameraUpdateFactory.newLatLngZoom(coordenadasmiubicacion, 18);
-                            mMap.animateCamera(miUbicacionboton);
-                        }
-                    }
-                });
+                    //variables para actualizar camara a la paraa mas cercana
+                    LatLng coordenadasmiubicacion = new LatLng(latuserubicacion,lnguserubicacion);
+                    CameraUpdate miUbicacionboton = CameraUpdateFactory.newLatLngZoom(coordenadasmiubicacion, 18);
+                    mMap.animateCamera(miUbicacionboton);
+                }
+            });
 
-            }
         });
 
 
@@ -649,8 +636,6 @@ public class MapasEnTiempoReal extends Fragment implements OnMapReadyCallback {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-
-
                     for (Marker marker : realTimeMarkers) {
                         //se remueven marcadores viejos
                         marker.remove();

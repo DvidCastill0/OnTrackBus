@@ -89,7 +89,7 @@ public class RegistroDeUsuarios extends Fragment {
         OTBReference = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
-        //Instanceamos los elementos de xml con lso de java
+        //Instanceamos los elementos de xml con los de java
         et_Nombre = vistaRegistro.findViewById(R.id.etNombre);
         et_Apellido = vistaRegistro.findViewById(R.id.etApellido);
         et_Correo = vistaRegistro.findViewById(R.id.etCorreoElectronicoRegistro);
@@ -540,4 +540,8 @@ public class RegistroDeUsuarios extends Fragment {
         et_ContactoConfianza.setText("");
         actv_RMF.setText("");
     }
+
+    //region OnClicks Buttons
+
+    //endregion
 }
