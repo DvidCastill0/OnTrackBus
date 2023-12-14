@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/azultoolbar"
+    android:background="#008EB8"
     tools:context=".RecuperarContrasena">
 
 
@@ -17,10 +17,10 @@
         android:ems="10"
         android:hint="Correo electronico: "
         android:inputType="textEmailAddress"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         android:paddingLeft="5pt"
         android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_Recuperar_Contraseña" />
 
     <TextView
@@ -39,18 +39,18 @@
 
     <Button
         android:id="@+id/btn_regresaraloginRC"
-        android:layout_width="123dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="63dp"
+        android:layout_height="63dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@drawable/edt_ovalo_confondoblanco"
+        android:background="@drawable/abc_vector_test"
         android:fontFamily="@font/arima_madurai"
-        android:text="Regresar"
         android:textColor="#A30000"
         android:textColorLink="#FF0303"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/actvRutaMasFrecuentadaRegistro" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/btn_Recuperar_Contraseña"

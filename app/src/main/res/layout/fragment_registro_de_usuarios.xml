@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/azultoolbar"
+    android:background="#008EB8"
     tools:context=".RegistroDeUsuarios">
 
     <ScrollView
@@ -37,36 +37,36 @@
 
             <Button
                 android:id="@+id/btn_regresaralogin"
-                android:layout_width="123dp"
-                android:layout_height="66dp"
-                android:layout_marginTop="32dp"
+                android:layout_width="63dp"
+                android:layout_height="63dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="@drawable/edt_ovalo_confondoblanco"
+                android:background="@drawable/abc_vector_test"
                 android:fontFamily="@font/arima_madurai"
-                android:text="Regresar"
                 android:textColor="#A30000"
                 android:textColorLink="#FF0303"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/actvRutaMasFrecuentadaRegistro" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <EditText
                 android:id="@+id/etNombre"
                 android:layout_width="150dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="25dp"
-                android:layout_marginLeft="25dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/edt_ovalo_confondoblanco"
+                android:digits="abcdefghijklmnñopqrstuvwxyz ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
                 android:ems="10"
                 android:hint="Nombre:"
                 android:inputType="textPersonName"
-                android:digits="abcdefghijklmnñopqrstuvwxyz ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
                 android:paddingLeft="5pt"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/etCorreoElectronicoRegistro"
                 app:layout_constraintTop_toBottomOf="@+id/tvRegistro" />
 
             <EditText
@@ -74,8 +74,6 @@
                 android:layout_width="150dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="25dp"
-                android:layout_marginRight="25dp"
                 android:background="@drawable/edt_ovalo_confondoblanco"
                 android:digits="abcdefghijklmnñopqrstuvwxyz ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
                 android:ems="10"
@@ -83,7 +81,7 @@
                 android:inputType="textPersonName"
                 android:paddingLeft="5pt"
                 android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/etCorreoElectronicoRegistro"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvRegistro" />
@@ -151,15 +149,15 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="64dp"
                 android:background="@drawable/edt_ovalo_confondoblanco"
+                android:completionHint="N° Rutas Disponibles"
+                android:completionThreshold="0"
                 android:ems="10"
                 android:hint="N° Ruta mas Frecuentada"
                 android:paddingLeft="5pt"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.207"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etContactoConfianzaRegistro"
-                android:completionThreshold="0"
-                android:completionHint="N° Rutas Disponibles"/>
+                app:layout_constraintTop_toBottomOf="@+id/etContactoConfianzaRegistro" />
 
             <Button
                 android:id="@+id/btn_Registrarse"
@@ -171,6 +169,7 @@
                 android:textColor="#06CD0F"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/actvRutaMasFrecuentadaRegistro" />
 
             <Button
