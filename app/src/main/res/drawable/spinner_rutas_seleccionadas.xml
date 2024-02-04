@@ -7,11 +7,11 @@
                 <shape>
                     <solid android:color="#FFFFFF" />
 
-                    <stroke android:width="3dp" android:color="#3F51B5" />
+                    <stroke android:width="3dp" android:color="#9C07779A" />
 
                     <padding android:bottom="1dp" android:left="1dp" android:right="1dp" android:top="1dp" />
 
-                    <corners android:radius="50dp" />
+                    <corners android:radius="10dp" />
 
                 </shape>
             </item>

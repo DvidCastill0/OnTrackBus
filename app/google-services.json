@@ -15,6 +15,88 @@
       },
       "oauth_client": [
         {
+          "client_id": "101432597266-qjne1noe3ddbhoqvq5gjpifg2clr013h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "OnTrackBus.com",
+            "certificate_hash": "b459bbac101654c56992709d37f344a8c1819551"
+          }
+        },
+        {
+          "client_id": "101432597266-hfvg5lsic3jgnqgc9115ot8l8jc9sfht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW6bUvbx-U12HHcOg4YZ2TX1S0Ch739H4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "101432597266-hfvg5lsic3jgnqgc9115ot8l8jc9sfht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101432597266:android:9a48690e29674c05d271cb",
+        "android_client_info": {
+          "package_name": "com.android.ontrackbus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "101432597266-hfvg5lsic3jgnqgc9115ot8l8jc9sfht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW6bUvbx-U12HHcOg4YZ2TX1S0Ch739H4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "101432597266-hfvg5lsic3jgnqgc9115ot8l8jc9sfht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101432597266:android:3077492c8326bd62d271cb",
+        "android_client_info": {
+          "package_name": "com.example.buscadorfirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "101432597266-7401ju3hj8lpuei5sl5hfl5g1r7d8m17.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.buscadorfirebase",
+            "certificate_hash": "2dadb769674614d3b1f9ef2003bb704d34fd7ce8"
+          }
+        },
+        {
+          "client_id": "101432597266-rkmjj6dqpeq8h0a79rvvcielqap8jmfh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.buscadorfirebase",
+            "certificate_hash": "b459bbac101654c56992709d37f344a8c1819551"
+          }
+        },
+        {
           "client_id": "101432597266-hfvg5lsic3jgnqgc9115ot8l8jc9sfht.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -48,6 +130,43 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.mibusprueba615_voca",
+            "certificate_hash": "b459bbac101654c56992709d37f344a8c1819551"
+          }
+        },
+        {
+          "client_id": "101432597266-hfvg5lsic3jgnqgc9115ot8l8jc9sfht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW6bUvbx-U12HHcOg4YZ2TX1S0Ch739H4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "101432597266-hfvg5lsic3jgnqgc9115ot8l8jc9sfht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101432597266:android:cdd563a89961fe8cd271cb",
+        "android_client_info": {
+          "package_name": "www.OnTrackBus.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "101432597266-spmkp59r6gfvkv21totjp8074p63ksd1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "www.OnTrackBus.com",
             "certificate_hash": "b459bbac101654c56992709d37f344a8c1819551"
           }
         },

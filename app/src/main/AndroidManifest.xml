@@ -1,71 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:targetApi="31">
         <activity
-            android:name=".user_menu"
+            android:name=".User_Menu.ui.help.HelpWindow"
             android:exported="false"
-            android:label="@string/title_activity_user_menu"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.ReporteVentanaemergente" />
+        <activity
+            android:name=".User_Menu.ui.trusted_contact.ModalWindow.detail_trusted_contact"
+            android:exported="false" />
+        <activity
+            android:name=".User_Menu.ui.channels.ModalWindow.reportRoute"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/AppTheme.BuscarRuta" />
+        <activity
+            android:name=".User_Menu.ui.channels.ModalWindow.suggestions"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/AppTheme.ReporteVentanaemergente" />
+        <activity
+            android:name=".User_Menu.ui.channels.ModalWindow.enterChannel"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/AppTheme.ReporteVentanaemergente" />
+        <activity
+            android:name=".User_Menu.ui.channels.ModalWindow.seeChannelInfo"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/AppTheme.BuscarRuta" />
+        <activity
+            android:name=".User_Menu.ui.maps.ModalWindow.notify_LockScreen"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/AppTheme.abordado" />
+        <activity
+            android:name=".User_Menu.ui.maps.ModalWindow.pasadorSpinner"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/AppTheme.abordado" />
+        <activity
+            android:name=".User_Menu.ui.maps.ModalWindow.search_route"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/title_activity_search_route"
+            android:theme="@style/AppTheme.BuscarRuta" />
+        <activity
+            android:name=".User_Menu.MenuActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/title_activity_menu"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".pasadorSpinner"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.abordado" />
-        <activity
-            android:name=".ventana_EmergenteAyuda"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.ReporteVentanaemergente" />
-        <activity
-            android:name=".ventanaEmergenteSugerencias"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.ReporteVentanaemergente" />
-        <activity
-            android:name=".ReportarRuta"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.BuscarRuta" />
-        <activity
-            android:name=".verInformacionDeCanal"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.BuscarRuta" />
-        <activity
-            android:name=".Ventana_Emergente_EntrarACanal"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.ReporteVentanaemergente" />
-        <activity
-            android:name=".Ventana_Emergente_Contacto_De_Confianza_Reporte"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.ReporteVentanaemergente" />
-        <activity
-            android:name=".BuscarOtraRutaVentanaEmergente"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.BuscarRuta" />
-        <activity
-            android:name=".notificacionPantallaBloqueo"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.abordado" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/maps_key" />
-
-        <activity
-            android:name=".MenuUsuario"
-            android:configChanges="orientation|screenSize" />
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="true">
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -74,8 +78,8 @@
         </activity>
 
         <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/maps_key" />
     </application>
 
 </manifest>

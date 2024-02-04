@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#16FFFFFF"
-    tools:context=".pasadorSpinner">
+    tools:context=".User_Menu.ui.maps.ModalWindow.pasadorSpinner">
 
     <TextView
         android:id="@+id/textView2"

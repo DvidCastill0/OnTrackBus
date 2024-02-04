@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/incharge_blue"
+    tools:context=".User_Menu.ui.maps.ModalWindow.search_route">
+
+    <TextView
+        android:id="@+id/tv_SeleccioneLaRutaaMirar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Seleccione la ruta a mirar:"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <AutoCompleteTextView
+        android:id="@+id/actv_SeleccioneOtraRutaAMirar"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/spinner_rutas_seleccionadas"
+        android:completionHint="N° Rutas Disponibles"
+        android:completionThreshold="0"
+        android:hint="Escriba El numero de Ruta: "
+
+        android:paddingLeft="15dp"
+        android:textColorHint="#7E7D7D"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_SeleccioneLaRutaaMirar" />
+
+    <Button
+        android:id="@+id/btn_CancelarOtraRutaMirar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_ovalo_confondoblanco"
+        android:text="Volver"
+        android:textColor="#E91E63"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/actv_SeleccioneOtraRutaAMirar" />
+
+    <Button
+        android:id="@+id/btn_BuscarOtraRuta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_ovalo_confondoblanco"
+        android:text="Aceptar"
+        android:textColor="#4CAF50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/actv_SeleccioneOtraRutaAMirar" />
+</androidx.constraintlayout.widget.ConstraintLayout>

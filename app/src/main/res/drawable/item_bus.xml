@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height ="50px"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+    <ImageView
+        android:id="@+id/ivCountry"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        tools:src="@drawable/ic_united_kingdom" />
+
+    <TextView
+        android:id="@+id/tvCountry"
+        android:layout_width="wrap_content "
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_toRightOf="@id/ivCountry"
+        android:layout_centerVertical="true"
+        android:textColor="@color/down_dark_grey"
+        android:textSize="18sp"
+        tools:text="Item 1"/>
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/baseline_arrow_drop_down_24"
+        />
+</RelativeLayout>

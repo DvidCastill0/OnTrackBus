@@ -3,23 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@id/nav_trusted_contact">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="OnTrackBus.com.ui.home.HomeFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/nav_channels"
+        android:name="com.android.ontrackbus.User_Menu.ui.channels.ChannelsFragment"
+        android:label="@string/menu_channels"
+        tools:layout="@layout/fragment_channels" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="OnTrackBus.com.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_maps"
+        android:name="com.android.ontrackbus.User_Menu.ui.maps.MapsFragment"
+        android:label="@string/app_title"
+        tools:layout="@layout/fragment_maps" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="OnTrackBus.com.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_trusted_contact"
+        android:name="com.android.ontrackbus.User_Menu.ui.trusted_contact.TrustedContactFragment"
+        android:label="@string/menu_trusted_contact"
+        tools:layout="@layout/fragment_trusted_contact" />
+    <fragment
+        android:id="@+id/nav_daily_activity"
+        android:name="com.android.ontrackbus.User_Menu.ui.daily_activity.DailyActivityFragment"
+        android:label="@string/menu_daily_activity"
+        tools:layout="@layout/fragment_daily_activity" />
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.android.ontrackbus.User_Menu.ui.profile.ProfileFragment"
+        android:label="@string/menu_profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>
