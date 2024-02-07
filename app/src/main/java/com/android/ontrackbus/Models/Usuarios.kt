@@ -11,6 +11,7 @@ class Usuarios {
     private var RMF2: String? = null
     private var RMF3: String? = null
     private var iduser: String? = null
+    var RutaMasFrecuentada: Map<String, String>? = null
 
     fun Usuarios() {}
 
@@ -68,7 +69,7 @@ class Usuarios {
         return RMF2
     }
 
-    fun setRMF2(RMF2: String) {
+    fun setRMF2(RMF2: String?) {
         this.RMF2 = RMF2
     }
 

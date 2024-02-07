@@ -209,8 +209,9 @@ class Login : Fragment() {
                                             val userkk = dataSnapshot.child("Users").child(id)
                                                 .child("RutaMasFrecuentada").child(
                                                     "RMF$istring"
-                                                ).value.toString()
-                                            rutasSeleccionadas.add(userkk)
+                                                ).value
+                                            if(userkk!=null)
+                                                rutasSeleccionadas.add(userkk.toString())
                                             contadorRMF1++
                                         }
 
@@ -228,7 +229,7 @@ class Login : Fragment() {
                                             activity,
                                             MenuActivity::class.java
                                         )
-                                        for (contadorarray in 0..2) {
+                                        for (contadorarray in 0..rutasSeleccionadas.count()) {
                                             if (rutasSeleccionadas[contadorarray] != null) {
                                                 bundleSesion.putString(
                                                     "RMF$contadorarray",
@@ -375,8 +376,9 @@ class Login : Fragment() {
                                 val userkk = dataSnapshot.child("Users").child(id)
                                     .child("RutaMasFrecuentada").child(
                                         "RMF$istring"
-                                    ).value.toString()
-                                rutasSeleccionadas.add(userkk)
+                                    ).value
+                                if(userkk != null)
+                                    rutasSeleccionadas.add(userkk.toString())
                                 contadorRMF1++
                             }
 
@@ -392,8 +394,8 @@ class Login : Fragment() {
 
                             //intent para iniciar la actividad siguiente
                             val intentMenuUsuario = Intent(activity, MenuActivity::class.java)
-                            for (contadorarray in 0..2) {
-                                if (rutasSeleccionadas[contadorarray] != null) {
+                            for (contadorarray in 0..rutasSeleccionadas.count()) {
+                                if (contadorarray < rutasSeleccionadas.count() && rutasSeleccionadas[contadorarray] != null) {
                                     bundleSesion.putString(
                                         "RMF$contadorarray",
                                         rutasSeleccionadas[contadorarray]

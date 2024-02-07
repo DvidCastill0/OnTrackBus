@@ -36,7 +36,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@drawable/edt_ovalo_confondoblanco"
                 android:ems="10"
-                android:hint="Escribe Tu Nombre;"
+                android:hint="Escribe Tu Nombre:"
                 android:inputType="textPersonName"
                 android:padding="7dp"
                 app:layout_constraintEnd_toEndOf="parent"

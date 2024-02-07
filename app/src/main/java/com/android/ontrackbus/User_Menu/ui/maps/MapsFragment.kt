@@ -138,7 +138,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
             var loginBundleSaved = ViewModelProvider(requireActivity())[MenuViewModel::class.java]
             loginBundle = loginBundleSaved!!.loginBundle;
             //segundo parametro Cantidad de rutas este parametro si es obligatorio y siempre recibe osea que es obligatorio
@@ -207,7 +206,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             //meter datos en array a mostrar en este fragmento
 
             //meter datos en array a mostrar en este fragmento
-            if (it != null) {
+            if (loginBundle != null) {
                 //if para saber si se selecciono otra ruta
                 if (loginBundle.getString("RutaSeleccionada") != null) {                     //Ruta seleccionada no obligatorio    RutaSeleccionada
                     //poner datos en caso de que se seleccionara una ruta
@@ -241,7 +240,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             } else {
                 Toast.makeText(activity, "no hay datos", Toast.LENGTH_SHORT).show()
             }
-        }
+
     }
 
 
@@ -286,7 +285,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             spnRuta.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
-                    view: View,
+                    view: View?,
                     position: Int,
                     id: Long
                 ) {
@@ -342,8 +341,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
 
                         //se envian las rutas predeterminadas del usuario junto a la ruta selccionada
-                        for (contadorarray in 0..2) {
-                            if (rutasRecargar[contadorarray] != null) {
+                        for (contadorarray in 0..rutasRecargar.count()) {
+                            if (contadorarray < rutasRecargar.count() && rutasRecargar[contadorarray] != null) {
                                 bundleRecargar.putString(
                                     "RMF$contadorarray",
                                     rutasRecargar[contadorarray]

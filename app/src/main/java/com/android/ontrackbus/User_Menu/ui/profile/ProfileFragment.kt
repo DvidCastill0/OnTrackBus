@@ -2,6 +2,7 @@ package com.android.ontrackbus.User_Menu.ui.profile
 
 import android.app.ProgressDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,29 +13,16 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.android.ontrackbus.Login.Login
 import com.android.ontrackbus.Models.Usuarios
 import com.android.ontrackbus.R
 import com.android.ontrackbus.User_Menu.MenuViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.util.regex.Pattern
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class ProfileFragment : Fragment() {
 
@@ -153,21 +141,36 @@ class ProfileFragment : Fragment() {
 
         progressDialog = ProgressDialog(activity)
 
-        //metodos de funcionalidad de los botones
-
-        //metodos de funcionalidad de los botones
+       //metodos de funcionalidad de los botones
         eliminarRuta()
         agregarRuta()
-
+        infoActualUsuario()
+        BotonActualizar()
 
 
         return vistaMiPerfil
     }
 
     suspend fun obtenerNombresDeRutas(): ArrayList<String> {
+
+        /* var snapshot = OTBReference!!.child("Rutas").get().await()*/
         var nombresDeRutas = ArrayList<String>()
 
-        try {
+        OTBReference!!.child("Rutas").get().addOnSuccessListener {
+            for (rutaSnapshot in it.children) {
+                var nombreRuta = rutaSnapshot.child("NombreDeRuta").getValue(String::class.java)
+                if (nombreRuta != null) {
+                    nombresDeRutas.add(nombreRuta)
+                }
+            }
+        }.addOnFailureListener{
+            Log.e("firebase", "Error getting data", it)
+        }
+
+
+
+
+        /*try {
             var snapshot = OTBReference!!.child("Rutas").get().await()
 
             for (rutaSnapshot in snapshot.children) {
@@ -178,10 +181,11 @@ class ProfileFragment : Fragment() {
             }
         } catch (e: Exception) {
             // Manejar excepciones si es necesario
-        }
+        }*/
 
         return nombresDeRutas
     }
+
     //metodo donde se agregan rutas seleccionada spor le usuario.
     private fun agregarRuta() {
         var btn_AgregarRuta = vistaMiPerfil!!.findViewById(R.id.btn_AgregarRutaActualizacion) as Button
@@ -202,72 +206,70 @@ class ProfileFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
-                    for (contador in 0 until i) {
-                        //if que revisa la ruta pedida por el usuario entre las rutas disponibles a ver
-                        if ((rutase == arrl_Rutas.get(contador))) {
-                            //bucle que busca que nos e este repitiendo ninguna ruta
-                            for (contadorRutaRepetida in 0..2) {
-                                //se revisa que el valor ingresado no haya sido repetido
-                                if ((rutase == array_rutas_seleccionadas.get(contadorRutaRepetida))) {
+                    //if que revisa la ruta pedida por el usuario entre las rutas disponibles a ver
+                    if (arrl_Rutas.contains(rutase)) {
+                        //bucle que busca que nos e este repitiendo ninguna ruta
+                        //se revisa que el valor ingresado no haya sido repetido
+                        if ((array_rutas_seleccionadas.contains(rutase))) {
+                            Toast.makeText(
+                                activity,
+                                "Ruta $rutase Repetida favor de agregar un valor diferente.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            banderaRutaRepetida = 1
+                            bandera = 1
+                        }
+
+
+                        if (banderaRutaRepetida == 0) {
+                            /*Inicia un ciclo for que busca el primer espacio en blanco en el array de
+                                 * de las rutas seleccionadas*/
+                            for (contadorarray in 0..2) {
+                                //Si se encuentra un elemento del array que esté vacío...
+                                if (array_rutas_seleccionadas.get(contadorarray) == null) {
+
+                                    //... se establece su valor en un string de la ruta seleccionada en el spinner
+                                    array_rutas_seleccionadas[contadorarray] = rutase
+                                    rutasagregadas--
+                                    when (contadorarray) {
+                                        0 -> {
+                                            tv_ruta1!!.setText(rutase)
+                                            tv_ruta1!!.setVisibility(View.VISIBLE)
+                                            btn_QuitarRuta1!!.setVisibility(View.VISIBLE)
+                                            userData.setRMF1(array_rutas_seleccionadas.get(0))
+                                        }
+
+                                        1 -> {
+                                            tv_ruta2!!.setText(rutase)
+                                            tv_ruta2!!.setVisibility(View.VISIBLE)
+                                            btn_QuitarRuta2!!.setVisibility(View.VISIBLE)
+                                            userData.setRMF2(array_rutas_seleccionadas.get(1).toString())
+                                        }
+
+                                        2 -> {
+                                            tv_ruta3!!.setText(rutase)
+                                            tv_ruta3!!.setVisibility(View.VISIBLE)
+                                            btn_QuitarRuta3!!.setVisibility(View.VISIBLE)
+                                            userData.setRMF3(array_rutas_seleccionadas.get(2).toString())
+                                        }
+                                    }
+                                    /*Si salió bien, se saldrá del ciclo después de haber agregado una ruta tanto
+                                         * a la lógica de la app como a su parte visual*/
+                                    //limpiamos el autocompletextview una vez agregada la ruta.
+                                    actv_ActualizarRMF!!.setText("")
+                                    //le mostramos al usuario que gruta se ingreso
                                     Toast.makeText(
                                         activity,
-                                        "Ruta $rutase Repetida favor de agregar un valor diferente.",
+                                        ("Ruta $rutase Agregada, puedes agregar $rutasagregadas").toString() + " rutas mas.",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    banderaRutaRepetida = 1
                                     bandera = 1
                                     break
                                 }
                             }
-                            if (banderaRutaRepetida == 0) {
-                                /*Inicia un ciclo for que busca el primer espacio en blanco en el array de
-                                     * de las rutas seleccionadas*/
-                                for (contadorarray in 0..2) {
-                                    //Si se encuentra un elemento del array que esté vacío...
-                                    if (array_rutas_seleccionadas.get(contadorarray) == null) {
-
-                                        //... se establece su valor en un string de la ruta seleccionada en el spinner
-                                        array_rutas_seleccionadas[contadorarray] = rutase
-                                        rutasagregadas--
-                                        when (contadorarray) {
-                                            0 -> {
-                                                tv_ruta1!!.setText(rutase)
-                                                tv_ruta1!!.setVisibility(View.VISIBLE)
-                                                btn_QuitarRuta1!!.setVisibility(View.VISIBLE)
-                                                userData.setRMF1(array_rutas_seleccionadas.get(0))
-                                            }
-
-                                            1 -> {
-                                                tv_ruta2!!.setText(rutase)
-                                                tv_ruta2!!.setVisibility(View.VISIBLE)
-                                                btn_QuitarRuta2!!.setVisibility(View.VISIBLE)
-                                                userData.setRMF2(array_rutas_seleccionadas.get(1).toString())
-                                            }
-
-                                            2 -> {
-                                                tv_ruta3!!.setText(rutase)
-                                                tv_ruta3!!.setVisibility(View.VISIBLE)
-                                                btn_QuitarRuta3!!.setVisibility(View.VISIBLE)
-                                                userData.setRMF3(array_rutas_seleccionadas.get(2).toString())
-                                            }
-                                        }
-                                        /*Si salió bien, se saldrá del ciclo después de haber agregado una ruta tanto
-                                             * a la lógica de la app como a su parte visual*/
-                                        //limpiamos el autocompletextview una vez agregada la ruta.
-                                        actv_ActualizarRMF!!.setText("")
-                                        //le mostramos al usuario que gruta se ingreso
-                                        Toast.makeText(
-                                            activity,
-                                            ("Ruta $rutase Agregada, puedes agregar $rutasagregadas").toString() + " rutas mas.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        bandera = 1
-                                        break
-                                    }
-                                }
-                            }
                         }
                     }
+
                     //En caso de que no se haya agregado la ruta
                     if (bandera == 0) {
                         Toast.makeText(
@@ -285,6 +287,8 @@ class ProfileFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
+
         })
     }
 
@@ -294,17 +298,31 @@ class ProfileFragment : Fragment() {
             array_rutas_seleccionadas[0] = null
             rutasagregadas++
             acomodar()
+
         })
         btn_QuitarRuta2!!.setOnClickListener(View.OnClickListener {
             array_rutas_seleccionadas[1] = null
             rutasagregadas++
             acomodar()
+
         })
         btn_QuitarRuta3!!.setOnClickListener(View.OnClickListener {
             array_rutas_seleccionadas[2] = null
             rutasagregadas++
             acomodar()
+
         })
+    }
+
+    fun updateRMFs(){
+        val mapRutasSeleccionadas = mutableMapOf<String, String>()
+        // Itera sobre el array de rutas seleccionadas y asigna cada elemento al mapa
+        for ((index, ruta) in array_rutas_seleccionadas.withIndex()) {
+            val key = "RMF${index + 1}" // La clave será RMF1, RMF2, RMF3, ...
+            if(ruta!=null)
+                mapRutasSeleccionadas[key] = ruta.toString()
+        }
+        userData.RutaMasFrecuentada = mapRutasSeleccionadas
     }
 
     //una vez eliminada la ruta juntar hacia la iquierda
@@ -355,6 +373,10 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    //metodo de accion del boton registrar
+    private fun BotonActualizar() {
+        btn_Actualizar!!.setOnClickListener(View.OnClickListener { validacion() })
+    }
 
     private fun validacion() {
         val RMF: String = array_rutas_seleccionadas.get(0).toString()
@@ -403,6 +425,8 @@ class ProfileFragment : Fragment() {
         datosUsuario["nombre"] = userData.getNombre()
         datosUsuario["apellido"] = userData.getApellido()
         datosUsuario["contactoConfianza"] = userData.getContactoConfianza()
+        updateRMFs()
+        datosUsuario["RutaMasFrecuentada"] = userData.RutaMasFrecuentada
 
         // Actualizar los datos del usuario en Firebase Realtime Database
         OTBReference!!.child("Users").child(id).updateChildren(datosUsuario)
@@ -414,9 +438,6 @@ class ProfileFragment : Fragment() {
                         "Datos del usuario actualizados correctamente.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    limpiarCaja() // Limpia los campos de entrada si es necesario
-
-                    // Puedes agregar aquí más lógica según sea necesario
 
                 } else {
                     // Manejar errores en la actualización
@@ -430,6 +451,72 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    private fun infoActualUsuario() {
+        val userUid = mAuth!!.currentUser?.uid
+
+        // Referencia a la base de datos
+        val userReference = OTBReference!!.child("Users").child(userUid!!)
+
+        // Obtener los datos del usuario
+        userReference.get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                val user = snapshot.getValue(Usuarios::class.java)
+                user?.let {
+                    // Setear los datos a los EditText respectivos
+                    edt_ActualizarNombre!!.setText(it.getNombre())
+                    userData.setNombre(it.getNombre())
+                    edt_ActualizarApellido!!.setText(it.getApellido())
+                    userData.setApellido(it.getApellido())
+                    edt_ActualizarContactoConfianza!!.setText(it.getContactoConfianza())
+                    userData.setContactoConfianza(it.getContactoConfianza())
+
+                    // Accedes al mapa de rutas más frecuentadas
+                    val rutasMasFrecuentadas = it.RutaMasFrecuentada
+                    userData.RutaMasFrecuentada =  it.RutaMasFrecuentada
+
+                    // Obtienes cada ruta individualmente
+                    val RMF1: String? = rutasMasFrecuentadas?.get("RMF1")
+                    val RMF2: String? = rutasMasFrecuentadas?.get("RMF2")
+                    val RMF3: String? = rutasMasFrecuentadas?.get("RMF3")
+
+                    // Obtener las rutas más frecuentadas
+                    if(!RMF1.isNullOrEmpty()){
+                        tv_ruta1!!.setVisibility(View.VISIBLE)
+                        tv_ruta1!!.setText(RMF1)
+                        btn_QuitarRuta1!!.setVisibility(View.VISIBLE)
+                        userData.setRMF1(RMF1)
+                        array_rutas_seleccionadas[0] = RMF1
+                        rutasagregadas--
+                    }
+
+                    // Obtener las rutas más frecuentadas
+                    if(!RMF2.isNullOrEmpty()){
+                        tv_ruta2!!.setVisibility(View.VISIBLE)
+                        tv_ruta2!!.setText(RMF2)
+                        btn_QuitarRuta2!!.setVisibility(View.VISIBLE)
+                        userData.setRMF2(RMF2)
+                        array_rutas_seleccionadas[1] = RMF2
+                        rutasagregadas--
+                    }
+
+                    // Obtener las rutas más frecuentadas
+                    if(!RMF3.isNullOrEmpty()){
+                        tv_ruta3!!.setVisibility(View.VISIBLE)
+                        tv_ruta3!!.setText(RMF3)
+                        btn_QuitarRuta3!!.setVisibility(View.VISIBLE)
+                        userData.setRMF1(RMF3)
+                        array_rutas_seleccionadas[2] = RMF3
+                        rutasagregadas--
+                    }
+
+                }
+            } else {
+                // El usuario no existe en la base de datos
+            }
+        }.addOnFailureListener { exception ->
+            // Manejar errores de lectura de datos
+        }
+    }
 
     private fun limpiarCaja() {
         edt_ActualizarNombre!!.setText("")
