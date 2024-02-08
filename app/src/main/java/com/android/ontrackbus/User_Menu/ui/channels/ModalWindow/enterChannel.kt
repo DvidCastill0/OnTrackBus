@@ -80,7 +80,7 @@ class enterChannel : AppCompatActivity() {
         //checar si el canal buscado ya esta en el list view
         OTBReference = FirebaseDatabase.getInstance().reference
         mAuth = FirebaseAuth.getInstance()
-        OTBReference!!.addValueEventListener(object : ValueEventListener {
+        OTBReference!!.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val iduser = mAuth!!.getCurrentUser()!!.uid
                 bandera = 0

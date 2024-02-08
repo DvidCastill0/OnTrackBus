@@ -114,7 +114,7 @@ class DailyActivityFragment : Fragment() {
                 val dia_seleccionado = spinner_dias!!.getSelectedItem().toString()
 
                 //Método de firebase
-                OTBdatabase.addValueEventListener(object : ValueEventListener {
+                OTBdatabase.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         array_reportes.clear()
                         array_sencillo_reportes.clear()

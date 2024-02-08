@@ -230,7 +230,7 @@ class Login : Fragment() {
                                             MenuActivity::class.java
                                         )
                                         for (contadorarray in 0..rutasSeleccionadas.count()) {
-                                            if (rutasSeleccionadas[contadorarray] != null) {
+                                            if (contadorarray < rutasSeleccionadas.count() && rutasSeleccionadas[contadorarray] != null) {
                                                 bundleSesion.putString(
                                                     "RMF$contadorarray",
                                                     rutasSeleccionadas[contadorarray]

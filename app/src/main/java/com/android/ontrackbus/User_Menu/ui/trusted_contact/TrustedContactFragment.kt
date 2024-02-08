@@ -100,7 +100,7 @@ class TrustedContactFragment : Fragment() {
 
         /*A continuación se hace la descarga de los reportes de la base de datos
          una sola vez*/
-        OTBdatabase!!.addValueEventListener(object : ValueEventListener {
+        OTBdatabase!!.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
 

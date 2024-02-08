@@ -35,7 +35,7 @@ class pasadorSpinner : AppCompatActivity() {
         BundleNombresDeRutas = intent.extras!!
         OTBReference = FirebaseDatabase.getInstance().reference
 
-        OTBReference!!.child("Rutas").addValueEventListener(object : ValueEventListener {
+        OTBReference!!.child("Rutas").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
 
