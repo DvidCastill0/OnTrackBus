@@ -46,6 +46,7 @@ import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.RoundCap
 import com.google.firebase.database.DataSnapshot
@@ -88,6 +89,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     //adaptadores para obtener todos los marcadores que haya por ruta
     private val tmpRealTimeMarker = ArrayList<Marker>()
     private val realTimeMarkers = ArrayList<Marker>()
+    private val realTimePolylines: MutableList<Polyline> = mutableListOf()
 
     //Button cambiar orientacion
     private var btn_OrientacionRuta: Button? = null
@@ -395,12 +397,22 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 btn_OrientacionRuta!!.setText("<-")
             }
             btn_OrientacionRuta!!.setOnClickListener(View.OnClickListener { v: View? ->
+                // Eliminar el ValueEventListener anterior, si existe
+                OTBReference!!.child("Rutas").child(rutaSeleccionadaNumero!!).child(orientacionRuta!!).removeEventListener(valueEventListener)
+
                 orientacionRuta = if (orientacionRuta == "ida") {
                     "vuelta"
                 } else {
                     "ida"
                 }
-                val bundleRecargar = Bundle()
+
+                if (orientacionRuta == "ida") {
+                    btn_OrientacionRuta!!.setText("->")
+                } else {
+                    btn_OrientacionRuta!!.setText("<-")
+                }
+
+                /*val bundleRecargar = Bundle()
                 bundleRecargar.putString("OrientacionRuta", orientacionRuta)
                 bundleRecargar.putInt("CantidadDeRutas", contadorRutaNumeroAbordado)
                 //se pasa el correo de confianza
@@ -423,15 +435,16 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     //se obtiene losnombres de las rutas disponibles.zza
                     bundleRecargar.putString("Ruta$contadorRD0", rutasdisponibles[contadorRD])
                     contadorRD0++
-                }
+                }*/
 
-
+                turnOnValueListenerParadas()
                 //intent para iniciar la actividad siguiente
-                val intentBuscarOtraruta = Intent(activity, pasadorSpinner::class.java)
+                /*val intentBuscarOtraruta = Intent(activity, pasadorSpinner::class.java)
                 // Agregas el Bundle al Intent e inicias ActivityB
                 intentBuscarOtraruta.putExtras(bundleRecargar)
                 requireActivity().finish()
-                startActivity(intentBuscarOtraruta)
+                startActivity(intentBuscarOtraruta)*/
+
             })
 
             //funcionalidad ya voy en camino
@@ -496,6 +509,168 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // Declara tu ValueEventListener
+    val valueEventListener = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            if (dataSnapshot.exists()) {
+                // Eliminar polilíneas anteriores
+                for (polyline in realTimePolylines) {
+                    polyline.remove()
+                }
+                realTimePolylines.clear()
+
+                // Eliminar marcadores anteriores
+                for (marker in realTimeMarkers) {
+                    marker.remove()
+                }
+                realTimeMarkers.clear()
+
+                // Obtener las claves de los hijos y convertirlas en una lista
+                val keys = dataSnapshot.children.map { it.key }.toList()
+
+                // Ordenar las claves personalizadamente
+                val sortedKeys = keys.sortedWith(Comparator { key1, key2 ->
+                    // Extraer los números de los nombres de las rutas
+                    val num1 = key1?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
+                    val num2 = key2?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
+
+                    // Comparar los números
+                    when {
+                        num1 != num2 -> num1 - num2
+                        else -> key1.compareTo(key2) // Si los números son iguales, comparar los nombres completos
+                    }
+                })
+
+                var index = 0;
+                // Iterar sobre los datos recibidos
+                for (key in sortedKeys) {
+                    oRutas = dataSnapshot.child(key!!).getValue(Rutas::class.java)!!
+                    val latitud = oRutas.getLatitud() ?: continue // Si la latitud es nula, pasamos al siguiente marcador
+                    val longitud = oRutas.getLongitud() ?: continue // Si la longitud es nula, pasamos al siguiente marcador
+                    val tittleu = oRutas.getTittle()
+                    val snnipetu = oRutas.getSnnipet()
+
+                    // Calculamos el marcador de tiempo
+                    val formateadorfecha = SimpleDateFormat("HH:mm:ss d-MM-yyyy")
+                    val fechaDate = Date()
+                    val fecha = formateadorfecha.format(fechaDate)
+                    var fechaactual: Date? = null
+                    var fechaMarcador: Date? = null
+                    try {
+                        fechaactual = formateadorfecha.parse(fecha)
+                        fechaMarcador = formateadorfecha.parse(snnipetu)
+                    } catch (e: ParseException) {
+                        e.printStackTrace()
+                    }
+
+                    // Calculamos la diferencia de tiempo
+                    val diferenciaEn_ms = fechaactual!!.time - fechaMarcador!!.time
+                    val minutos = diferenciaEn_ms / 60000
+
+                    // Determinamos el icono y el texto del marcador según el tiempo transcurrido
+                    var iconu = "sin_abordar"
+                    var snnipethaceuanto = ""
+                    when {
+                        minutos < 1 -> {
+                            iconu = "abordado_menos_min"
+                            val segundos = diferenciaEn_ms / 1000
+                            snnipethaceuanto = if (segundos == 1L) {
+                                "Ruta abordada hace: $segundos Segundo."
+                            } else {
+                                "Ruta abordada hace: $segundos Segundos."
+                            }
+                        }
+                        minutos < 60 -> {
+                            iconu = "abordado_mas_min"
+                            snnipethaceuanto = if (minutos == 1L) {
+                                "Ruta abordada hace: $minutos Minuto."
+                            } else {
+                                "Ruta abordada hace: $minutos Minutos."
+                            }
+                        }
+                        minutos >= 60 && minutos < 1440 -> {
+                            val horas = minutos / 60
+                            iconu = "sin_abordar" // Cambia el icono según tus necesidades
+                            snnipethaceuanto = if (horas == 1L) {
+                                "Ruta abordada hace: $horas Hora."
+                            } else {
+                                "Ruta abordada hace: $horas Horas."
+                            }
+                        }
+                        minutos >= 1440 -> {
+                            val dias = minutos / 1440
+                            iconu = "sin_abordar" // Cambia el icono según tus necesidades
+                            snnipethaceuanto = if (dias == 1L) {
+                                "Ruta abordada hace: $dias Día."
+                            } else {
+                                "Ruta abordada hace: $dias Días."
+                            }
+                        }
+                    }
+
+                    // Agregamos el marcador al mapa
+                    val imageBitmap = BitmapFactory.decodeResource(
+                        activity!!.resources,
+                        activity!!.resources.getIdentifier(
+                            iconu,
+                            "drawable",
+                            vistaMapasEnTiempoReal!!.context.packageName
+                        )
+                    )
+                    val markerOptions = MarkerOptions()
+                        .position(LatLng(latitud, longitud))
+                        .anchor(0.5f, 0.5f)
+                        .title(tittleu)
+                        .snippet(snnipethaceuanto)
+                        .icon(BitmapDescriptorFactory.fromBitmap(imageBitmap))
+                    val marker = mMap!!.addMarker(markerOptions)
+                    realTimeMarkers.add(marker!!)
+
+
+                    // Conectamos el último marcador con el marcador actual (si no es el primero)
+                    if (index > 0) {
+                        val previousMarker = realTimeMarkers[index - 1]
+                        val currentMarker = realTimeMarkers[index]
+
+                        val previousLatLng = previousMarker.position
+                        val currentLatLng = currentMarker.position
+                        // Calcula un punto intermedio entre las dos ubicaciones
+                        val middleLatLng = LatLng(
+                            (previousLatLng.latitude + currentLatLng.latitude) / 2,
+                            (previousLatLng.longitude + currentLatLng.longitude) / 2
+                        )
+
+                        val arrowColor =
+                            Color.argb(255, 0, 160, 207) // change this if you want another color (Color.BLUE)
+
+                        val lineColor = Color.argb(255, 0, 160, 207)
+                        val endCapIcon = getEndCapIcon(context, arrowColor)
+                        val polylineOptions = mMap?.addPolyline(
+                            PolylineOptions()
+                                .add(previousMarker.position, currentMarker.position)
+                                .add(middleLatLng)
+                                .geodesic(true)
+                                .startCap(RoundCap())
+                                .endCap(CustomCap(endCapIcon!!, 30F))
+                                .jointType(JointType.ROUND)
+                                .width(20f)
+                                .color(lineColor) // Color azul semitransparente
+                                .zIndex(1f) // Asegura que la flecha esté encima de la polyline
+                        )
+                        realTimePolylines.add(polylineOptions!!)
+                    }
+                    index++
+                }
+
+                progressDialog!!.dismiss()
+            }
+
+
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -690,159 +865,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
 
 
-        //se obtiene de la base de datos el nombre de las rutas que estan disponibles a ver en el fragmento y se compara con la que selecciono el usuario para ver si existe.
-        OTBReference!!.child("Rutas").child(rutaSeleccionadaNumero!!).child(orientacionRuta!!)
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        // Eliminar marcadores anteriores
-                        for (marker in realTimeMarkers) {
-                            marker.remove()
-                        }
+        turnOnValueListenerParadas()
 
-                        // Obtener las claves de los hijos y convertirlas en una lista
-                        val keys = dataSnapshot.children.map { it.key }.toList()
-
-                        // Ordenar las claves personalizadamente
-                        val sortedKeys = keys.sortedWith(Comparator { key1, key2 ->
-                            // Extraer los números de los nombres de las rutas
-                            val num1 = key1?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
-                            val num2 = key2?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
-
-                            // Comparar los números
-                            when {
-                                num1 != num2 -> num1 - num2
-                                else -> key1.compareTo(key2) // Si los números son iguales, comparar los nombres completos
-                            }
-                        })
-
-                        var index = 0;
-                        // Iterar sobre los datos recibidos
-                        for (key in sortedKeys) {
-                            oRutas = dataSnapshot.child(key!!).getValue(Rutas::class.java)!!
-                            val latitud = oRutas.getLatitud() ?: continue // Si la latitud es nula, pasamos al siguiente marcador
-                            val longitud = oRutas.getLongitud() ?: continue // Si la longitud es nula, pasamos al siguiente marcador
-                            val tittleu = oRutas.getTittle()
-                            val snnipetu = oRutas.getSnnipet()
-
-                            // Calculamos el marcador de tiempo
-                            val formateadorfecha = SimpleDateFormat("HH:mm:ss d-MM-yyyy")
-                            val fechaDate = Date()
-                            val fecha = formateadorfecha.format(fechaDate)
-                            var fechaactual: Date? = null
-                            var fechaMarcador: Date? = null
-                            try {
-                                fechaactual = formateadorfecha.parse(fecha)
-                                fechaMarcador = formateadorfecha.parse(snnipetu)
-                            } catch (e: ParseException) {
-                                e.printStackTrace()
-                            }
-
-                            // Calculamos la diferencia de tiempo
-                            val diferenciaEn_ms = fechaactual!!.time - fechaMarcador!!.time
-                            val minutos = diferenciaEn_ms / 60000
-
-                            // Determinamos el icono y el texto del marcador según el tiempo transcurrido
-                            var iconu = "sin_abordar"
-                            var snnipethaceuanto = ""
-                            when {
-                                minutos < 1 -> {
-                                    iconu = "abordado_menos_min"
-                                    val segundos = diferenciaEn_ms / 1000
-                                    snnipethaceuanto = if (segundos == 1L) {
-                                        "Ruta abordada hace: $segundos Segundo."
-                                    } else {
-                                        "Ruta abordada hace: $segundos Segundos."
-                                    }
-                                }
-                                minutos < 60 -> {
-                                    iconu = "abordado_mas_min"
-                                    snnipethaceuanto = if (minutos == 1L) {
-                                        "Ruta abordada hace: $minutos Minuto."
-                                    } else {
-                                        "Ruta abordada hace: $minutos Minutos."
-                                    }
-                                }
-                                minutos >= 60 && minutos < 1440 -> {
-                                    val horas = minutos / 60
-                                    iconu = "sin_abordar" // Cambia el icono según tus necesidades
-                                    snnipethaceuanto = if (horas == 1L) {
-                                        "Ruta abordada hace: $horas Hora."
-                                    } else {
-                                        "Ruta abordada hace: $horas Horas."
-                                    }
-                                }
-                                minutos >= 1440 -> {
-                                    val dias = minutos / 1440
-                                    iconu = "sin_abordar" // Cambia el icono según tus necesidades
-                                    snnipethaceuanto = if (dias == 1L) {
-                                        "Ruta abordada hace: $dias Día."
-                                    } else {
-                                        "Ruta abordada hace: $dias Días."
-                                    }
-                                }
-                            }
-
-                            // Agregamos el marcador al mapa
-                            val imageBitmap = BitmapFactory.decodeResource(
-                                activity!!.resources,
-                                activity!!.resources.getIdentifier(
-                                    iconu,
-                                    "drawable",
-                                    vistaMapasEnTiempoReal!!.context.packageName
-                                )
-                            )
-                            val markerOptions = MarkerOptions()
-                                .position(LatLng(latitud, longitud))
-                                .anchor(0.5f, 0.5f)
-                                .title(tittleu)
-                                .snippet(snnipethaceuanto)
-                                .icon(BitmapDescriptorFactory.fromBitmap(imageBitmap))
-                            val marker = mMap!!.addMarker(markerOptions)
-                            realTimeMarkers.add(marker!!)
-
-
-                            // Conectamos el último marcador con el marcador actual (si no es el primero)
-                            if (index > 0) {
-                                val previousMarker = realTimeMarkers[index - 1]
-                                val currentMarker = realTimeMarkers[index]
-
-                                val previousLatLng = previousMarker.position
-                                val currentLatLng = currentMarker.position
-                                // Calcula un punto intermedio entre las dos ubicaciones
-                                val middleLatLng = LatLng(
-                                    (previousLatLng.latitude + currentLatLng.latitude) / 2,
-                                    (previousLatLng.longitude + currentLatLng.longitude) / 2
-                                )
-
-                                val arrowColor =
-                                    Color.argb(128, 0, 160, 207) // change this if you want another color (Color.BLUE)
-
-                                val lineColor = Color.argb(128, 0, 160, 207)
-                                val endCapIcon = getEndCapIcon(context, arrowColor)
-                                mMap?.addPolyline(
-                                    PolylineOptions()
-                                        .add(previousMarker.position, currentMarker.position)
-                                        .add(middleLatLng)
-                                        .geodesic(true)
-                                        .startCap(RoundCap())
-                                        .endCap(CustomCap(endCapIcon!!, 10F))
-                                        .jointType(JointType.ROUND)
-                                        .width(5f)
-                                        .color(lineColor) // Color azul semitransparente
-                                )
-                            }
-                            index++
-                        }
-
-                        progressDialog!!.dismiss()
-                    }
-
-
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {}
-            })
         userFLPC!!.lastLocation
             .addOnSuccessListener(
                 requireActivity()
@@ -857,6 +881,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     }
 
+    fun turnOnValueListenerParadas(){
+        //se obtiene de la base de datos el nombre de las rutas que estan disponibles a ver en el fragmento y se compara con la que selecciono el usuario para ver si existe.
+        OTBReference!!.child("Rutas").child(rutaSeleccionadaNumero!!).child(orientacionRuta!!)
+            .addValueEventListener(valueEventListener)
+    }
 
     /**
      * Return a BitmapDescriptor of an arrow endcap icon for the passed color.
