@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using RoutesGoogleMapsScraper.DTOs;
-using RoutesGoogleMapsScraper.Models;
+using RoutesGoogleMapsScraper.Profiles;
 
 namespace RoutesGoogleMapsScraper.Configuration
 {
@@ -12,8 +11,16 @@ namespace RoutesGoogleMapsScraper.Configuration
         {
             _config = new MapperConfiguration(config =>
             {
-                config.CreateMap<OnTrackBusResponse, OnTrackBusRoutesReadDTO>()
-                .ForMember(dest => dest.Routes, opts => opts.MapFrom(src => src.Routes));
+                config.AddProfile<OnTrackBusActivityReportProfile>();
+                config.AddProfile<OnTrackBusChannelProfile>();
+                config.AddProfile<OnTrackBusReportProfile>();
+                config.AddProfile<OnTrackBusRouteProfile>();
+                config.AddProfile<OnTrackBusSelectedChannelProfile>();
+                config.AddProfile<OnTrackBusStandProfile>();
+                config.AddProfile<OnTrackBusSuggestionProfile>();
+                config.AddProfile<OnTrackBusSupportQuestionProfile>();
+                config.AddProfile<OnTrackBusUserProfile>();
+                config.AddProfile<OnTrackBusResponseProfile>();
             });
         }
 

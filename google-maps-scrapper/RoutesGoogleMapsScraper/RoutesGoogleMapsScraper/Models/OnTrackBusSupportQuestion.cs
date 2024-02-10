@@ -15,7 +15,7 @@ namespace RoutesGoogleMapsScraper.Models
         {
             Content = string.Empty;
             Email = string.Empty;
-            IssuedDateTime = DateTime.Now.ToString();
+            IssuedDateTime = DateTime.Now.ToString("HH:mm:ss d-MM-yyyy");
         }
     }
 }

@@ -19,9 +19,9 @@ namespace RoutesGoogleMapsScraper.Models
         public OnTrackBusActivityReport()
         {
             Id = 0;
-            BoardingDateOnly = DateTime.Now.ToString();
-            BoardingTimeOnly = DateTime.Now.ToString();
-            BoardingDateTime = DateTime.Now.ToString();
+            BoardingDateOnly = DateTime.Now.ToString("HH:mm:ss d-MM-yyyy");
+            BoardingTimeOnly = DateTime.Now.ToString("HH:mm:ss d-MM-yyyy");
+            BoardingDateTime = DateTime.Now.ToString("HH:mm:ss d-MM-yyyy");
             StandName = string.Empty;
             RouteName = string.Empty;
         }

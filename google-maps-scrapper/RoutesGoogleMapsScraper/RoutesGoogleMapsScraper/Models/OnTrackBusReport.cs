@@ -22,8 +22,8 @@ namespace RoutesGoogleMapsScraper.Models
         public OnTrackBusReport()
         {
             Id = string.Empty;
-            IssuedDateTime = DateTime.Now.ToString();
-            ChannelReportDateTime = DateTime.Now.ToString();
+            IssuedDateTime = DateTime.Now.ToString("HH:mm:ss d-MM-yyyy");
+            ChannelReportDateTime = DateTime.Now.ToString("HH:mm:ss d-MM-yyyy");
             Email = string.Empty;
             ChannelReportId = string.Empty;
             Location = string.Empty;

@@ -10,7 +10,7 @@ namespace RoutesGoogleMapsScraper.Models
         public float Latitude { get; set; }
         [JsonProperty("longitud")]
         public float Longitude { get; set; }
-        [JsonProperty("IA_value")]
+        [JsonProperty("IAValue")]
         public string Prediction { get; set; }
         [JsonProperty("snnipet")]
         public string LastTimeBoarded { get; set; }
@@ -20,8 +20,8 @@ namespace RoutesGoogleMapsScraper.Models
             Name = string.Empty;
             Latitude = 0;
             Longitude = 0;
-            Prediction = DateTime.Now.ToString();
-            LastTimeBoarded = DateTime.Now.ToString();
+            Prediction = DateTime.Now.ToString("HH:mm;ss d-MM-yyyy");
+            LastTimeBoarded = DateTime.Now.ToString("HH:mm:ss  d-MM-yyyy");
         }
 
     }
