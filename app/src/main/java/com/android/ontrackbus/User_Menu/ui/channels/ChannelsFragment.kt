@@ -122,7 +122,7 @@ class ChannelsFragment : Fragment() {
 
 
 
-        OTbReference!!.addValueEventListener(object : ValueEventListener {
+        OTbReference!!.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 CanalesSeleccionados.clear()
                 array_reportesCanales.clear()

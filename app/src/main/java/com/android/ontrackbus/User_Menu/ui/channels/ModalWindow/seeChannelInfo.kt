@@ -136,7 +136,7 @@ class seeChannelInfo : AppCompatActivity() {
 
 
         OTBReference!!.child("Canales").child("Canal$numeroCanal")
-            .addValueEventListener(object : ValueEventListener {
+            .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     val dardecimales = DecimalFormat("#.00")
                     val tarifaFloat = dataSnapshot.child("Tarifa").value.toString().toFloat()
@@ -1017,7 +1017,7 @@ class seeChannelInfo : AppCompatActivity() {
     }
 
     private fun funcionalidadbtn_Hacer_Reporte() {
-        OTBReference!!.addValueEventListener(object : ValueEventListener {
+        OTBReference!!.addListenerForSingleValueEvent(object : ValueEventListener {
             @SuppressLint("MissingPermission")
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 tv_Reportes!!.setOnClickListener {

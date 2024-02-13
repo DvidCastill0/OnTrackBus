@@ -151,7 +151,7 @@ class notify_LockScreen : AppCompatActivity() {
 
 
         //se obtiene de la base de datos el nombre de las rutas que estan disponibles a ver en el fragmento y se compara con la que selecciono el usuario para ver si existe.
-        OTBReference!!.addValueEventListener(object : ValueEventListener {
+        OTBReference!!.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 btn_abordadosi!!.setOnClickListener {
                     //variable para buscar la uktima ubicacion del usuario
@@ -472,7 +472,7 @@ class notify_LockScreen : AppCompatActivity() {
 
     private fun funcion_btnOtraRutaAbordado() {
         //se obtiene de la base de datos el nombre de las rutas que estan disponibles a ver en el fragmento y se compara con la que selecciono el usuario para ver si existe.
-        OTBReference!!.addValueEventListener(object : ValueEventListener {
+        OTBReference!!.addListenerForSingleValueEvent(object : ValueEventListener {
             @SuppressLint("MissingPermission")
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 btn_OtraRutaAbordado!!.setOnClickListener {
