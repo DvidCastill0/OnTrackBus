@@ -4,7 +4,7 @@ namespace RoutesGoogleMapsScraper.DTOs
 {
     public class OnTrackBusRoutesReadDTO
     {
-        public List<OnTrackBusRouteReadDTO> Routes;
+        public List<OnTrackBusRouteReadDTO> Routes { get; set; }
 
         public OnTrackBusRoutesReadDTO()
         {

@@ -7,7 +7,7 @@
             
         }
 
-        public ResponseMessage(bool sucess, string message) : base(sucess, message)
+        public ResponseMessage(bool success, string message) : base(success, message)
         {
             
         }

@@ -2,8 +2,10 @@
 {
     public class OnTrackBusSupportQuestionReadDTO
     {
-        public string Content;
-        public string Email;
-        public DateTime IssuedDateTime;
+
+        public string Id { get; set; }
+        public string Content { get; set; }
+        public string Email { get; set; }
+        public DateTime IssuedDateTime { get; set; }
     }
 }

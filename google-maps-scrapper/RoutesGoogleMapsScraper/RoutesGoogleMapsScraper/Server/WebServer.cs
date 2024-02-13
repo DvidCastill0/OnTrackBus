@@ -108,9 +108,9 @@ namespace RoutesGoogleMapsScraper.Server
 
         public Response SendDataToController(ILogger logger, IMapper mapper, Request request)
         {
-            return request.Controller switch
+            return request.Controller.ToLower() switch
             {
-                "OnTrackBus" => OnTrackBusController.ProcessRequest(logger, mapper, request),
+                "ontrackbus" => OnTrackBusController.ProcessRequest(logger, mapper, request),
                 //"Directions" => DirectionsController.ProcessRequest(logger, mapper, request),
                 _ => ErrorController.getNotFound(logger, "Controller not found")
             };

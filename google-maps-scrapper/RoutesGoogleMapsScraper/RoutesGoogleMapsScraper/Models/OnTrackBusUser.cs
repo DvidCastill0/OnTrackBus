@@ -16,8 +16,8 @@ namespace RoutesGoogleMapsScraper.Models
         public string Password { get; set; }
         [JsonProperty("contactoConfianza")]
         public string TrustContact { get; set; }
-        [JsonProperty("RutaMasFrencuentada")]
-        public List<string> TopRoutes { get; set; }
+        [JsonProperty("RutaMasFrecuentada")]
+        public Dictionary<string, string> TopRoutes { get; set; }
         [JsonProperty("MiActividad")]
         public Dictionary<string, Dictionary<string, OnTrackBusActivityReport>> ActivityLog { get; set; }
         [JsonProperty("CanalesSeleccionados")]
@@ -31,7 +31,7 @@ namespace RoutesGoogleMapsScraper.Models
             Email = string.Empty;
             Password = string.Empty;
             TrustContact = string.Empty;
-            TopRoutes = new List<string>();
+            TopRoutes = new Dictionary<string, string>();
             ActivityLog = new Dictionary<string, Dictionary<string, OnTrackBusActivityReport>>();
             SelectedChannels = new Dictionary<string, OnTrackBusSelectedChannel>();
         }

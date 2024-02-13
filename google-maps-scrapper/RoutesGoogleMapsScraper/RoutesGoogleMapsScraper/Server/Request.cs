@@ -12,6 +12,7 @@ namespace RoutesGoogleMapsScraper.Server
         private readonly string _method;
         private string _controller;
         private string _endpoint;
+        private Guid _guid;
         #endregion
 
         #region constructors
@@ -19,6 +20,7 @@ namespace RoutesGoogleMapsScraper.Server
         {
             _request = request;
             _sequence = sequence;
+            _guid = System.Guid.NewGuid();
             _method = request.HttpMethod;
             _body = GetBody().Result;
             _controller = string.Empty;
@@ -54,6 +56,7 @@ namespace RoutesGoogleMapsScraper.Server
         }
 
         public int Sequence => _sequence;
+        public string Guid => _guid.ToString();
 
         public List<Header> GetHeaders() => _request.Headers.AllKeys.SelectMany(_request.Headers.GetValues, (key, value) => new Header(key, value)).ToList();
 
@@ -61,7 +64,7 @@ namespace RoutesGoogleMapsScraper.Server
         {
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine($"\nRequest #{_sequence}");
+            stringBuilder.AppendLine($"\nRequest #{_sequence} (GUID: {_guid})");
             stringBuilder.AppendLine("\nHeaders:{");
 
             foreach (var header in GetHeaders())
