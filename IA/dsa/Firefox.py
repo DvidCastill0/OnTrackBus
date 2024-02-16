@@ -13,7 +13,7 @@ options.headless = False
 profile = webdriver.FirefoxProfile()
 profile.set_preference("media.autoplay.default", 0)
 driver = webdriver.Firefox()
-url = "https://moovitapp.com/guadalajara-2900/lines/t13-b%20-%20azucena/89384564/6364548/en?t=1"
+url = "https://moovitapp.com/guadalajara-2900/lines/t15%20-%20dos%20templos/23741035/6793112/en?t=1"
 
 Horas = []
 
@@ -41,12 +41,12 @@ def getData():
         Horas.append(
             {    
             "Parada":parada,
-            "N":count,
-            "NF":subCount,
+            "N":subCount,
+            "NF":count,
             "hora": hora
             })
         parada += 1
-    WriteDataInCSV(Horas, "178.csv")
+    WriteDataInCSV(Horas, "231-v.csv")
     
 
 def WriteDataInCSV(Data, FileName, init = False): 
