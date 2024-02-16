@@ -1,6 +1,7 @@
 package com.android.ontrackbus.User_Menu.ui.maps
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
@@ -11,10 +12,14 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.location.Location
+import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Looper
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -54,9 +59,16 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.logging.Handler
 
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
@@ -87,9 +99,17 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private var oRutas: Rutas = Rutas()
 
     //adaptadores para obtener todos los marcadores que haya por ruta
+    private var currentMarkerIndex = 0
     private val tmpRealTimeMarker = ArrayList<Marker>()
     private val realTimeMarkers = ArrayList<Marker>()
+    private val route = ArrayList<LatLng>()
+    private val realTimeMarkerOptions = ArrayList<MarkerOptions>()
+    private lateinit var markers: List<MarkerOptions>
     private val realTimePolylines: MutableList<Polyline> = mutableListOf()
+
+    private val polylinesPruebas: MutableList<Polyline> = mutableListOf()
+    private var currentPointIndex = 0
+    private lateinit var markerAnimated: MarkerOptions
 
     //Button cambiar orientacion
     private var btn_OrientacionRuta: Button? = null
@@ -527,6 +547,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 }
                 realTimeMarkers.clear()
 
+                // Eliminar las latitudes y longitudes guardadas
+                route.clear()
+                //Eliminar los marker options
+                realTimeMarkerOptions.clear()
+
                 // Obtener las claves de los hijos y convertirlas en una lista
                 val keys = dataSnapshot.children.map { it.key }.toList()
 
@@ -619,12 +644,15 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                             vistaMapasEnTiempoReal!!.context.packageName
                         )
                     )
+
+                    route.add(LatLng(latitud, longitud))
                     val markerOptions = MarkerOptions()
                         .position(LatLng(latitud, longitud))
                         .anchor(0.5f, 0.5f)
                         .title(tittleu)
                         .snippet(snnipethaceuanto)
                         .icon(BitmapDescriptorFactory.fromBitmap(imageBitmap))
+                    realTimeMarkerOptions.add(markerOptions!!)
                     val marker = mMap!!.addMarker(markerOptions)
                     realTimeMarkers.add(marker!!)
 
@@ -660,10 +688,43 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                                 .zIndex(1f) // Asegura que la flecha esté encima de la polyline
                         )
                         realTimePolylines.add(polylineOptions!!)
+
+                        val polylineOptions2 = PolylineOptions()
+                            .add(currentMarker.position,previousMarker.position )
+                            .geodesic(true)
+                            .startCap(RoundCap())
+                            .endCap(CustomCap(endCapIcon!!, 30F))
+                            .jointType(JointType.ROUND)
+                            .width(20f)
+                            .color(lineColor) // Color azul semitransparente
+                            .zIndex(1f)
+
+                        val polyline = mMap!!.addPolyline(polylineOptions2)
+
+                        // Ahora, si deseas almacenar la referencia a la Polyline para usarla más tarde o eliminarla del mapa, puedes hacerlo
+                        polylinesPruebas.add(polyline)
+                        polyline.remove()
+
                     }
                     index++
                 }
 
+                // Animar marcador a lo largo de la ruta
+                markers = route.map { latLng ->
+                    MarkerOptions().position(latLng).title("Marker")
+                }
+                // Esperar 4 segundos antes de iniciar la animación en un hilo en segundo plano
+                /*GlobalScope.launch {
+                    delay(4000)
+                    withContext(Dispatchers.Main) {
+                        animateMarker(mMap!!, markers!!)
+                    }
+                }*/
+                // Iniciar la animación con Coroutine
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(4000)
+                    animateMarker(mMap!!)
+                }
                 progressDialog!!.dismiss()
             }
 
@@ -672,6 +733,121 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         override fun onCancelled(databaseError: DatabaseError) {}
     }
+
+    fun moveMarkerAlongPolyline(polylineList: List<Polyline>, marker: Marker) {
+        val totalPoints = polylineList.sumBy { it.points.size }
+
+        Toast.makeText(
+            activity,
+            "Rutas polyline "+ polylineList.count(),
+            Toast.LENGTH_SHORT
+        ).show()
+
+        val handler = android.os.Handler()
+        var index = 0
+
+        handler.post(object : Runnable {
+            override fun run() {
+                if (index < totalPoints - 1) {
+                    val nextIndex = index + 1
+                    val startPoint = polylineList.map { it.points }.flatten()[index]
+                    val endPoint = polylineList.map { it.points }.flatten()[nextIndex]
+
+                    val startPosition = LatLng(startPoint.latitude, startPoint.longitude)
+                    val endPosition = LatLng(endPoint.latitude, endPoint.longitude)
+
+                    val valueAnimator = ValueAnimator.ofFloat(0f, 1f)
+                    valueAnimator.duration = 300 // Change duration as needed
+
+                    valueAnimator.interpolator = LinearInterpolator()
+
+                    valueAnimator.addUpdateListener { animation ->
+                        val v = animation.animatedFraction
+                        val newPosition = LatLng(
+                            startPosition.latitude * (1 - v) + endPosition.latitude * v,
+                            startPosition.longitude * (1 - v) + endPosition.longitude * v
+                        )
+                        marker.position = newPosition
+                    }
+
+                    valueAnimator.start()
+
+                    index++
+
+                    handler.postDelayed(this, 1000) // Change delay as needed
+                }
+            }
+        })
+    }
+
+    private suspend fun animateMarker(map:  GoogleMap) {
+        // Crear un marcador animado inicial en la primera posición de la ruta
+        val markerAnimated = MarkerOptions().position(route[route.count()-1]).title("Marker")
+        var currentMaker = map.addMarker(markerAnimated);
+        map.moveCamera(CameraUpdateFactory.newLatLng(route[route.count()-1]))
+
+        val mHandler = android.os.Handler(Looper.getMainLooper())
+
+        val frameArray = intArrayOf(R.drawable.frame01, R.drawable.frame10, R.drawable.frame20,R.drawable.frame21, R.drawable.frame39, R.drawable.frame48 ) // Aquí debes incluir tus imágenes
+
+        var index = 0
+        mHandler.post(object : Runnable {
+            override fun run() {
+                val originalBitmap = BitmapFactory.decodeResource(resources, frameArray[index]) // Carga la imagen original
+                val width = originalBitmap.width
+                val height = originalBitmap.height
+                val scaledWidth = 96 // Tamaño deseado
+                val scaledHeight = 96 // Tamaño deseado
+                val scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, scaledWidth, scaledHeight, false) // Redimensiona la imagen
+
+
+                currentMaker!!.setIcon(BitmapDescriptorFactory.fromBitmap(scaledBitmap))
+                index = (index + 1) % frameArray.size
+                mHandler.postDelayed(this, 1000) // Cambia la imagen cada segundo (1000 ms)
+            }
+        })
+
+        moveMarkerAlongPolyline(polylinesPruebas.asReversed(), currentMaker!!)
+
+        // Inicializar el índice del marcador actual
+        /*var currentMarkerIndex = 0
+
+        var polyline = map.addPolyline(PolylineOptions().addAll(route))
+
+        // Crear un ValueAnimator que moverá el marcador a lo largo de la ruta
+        val animator = ValueAnimator.ofFloat(0f, 1f)
+        animator.duration = 5000 // Duración de la animación en milisegundos
+        animator.addUpdateListener { valueAnimator ->
+            val fraction = valueAnimator.animatedFraction
+            var nextMarkerIndex = currentMarkerIndex + 1
+
+            if (nextMarkerIndex < route.size) {
+                val nextPosition = route[nextMarkerIndex]
+                val currentPosition = LatLng(
+                    route[currentMarkerIndex].latitude + fraction * (nextPosition.latitude - route[currentMarkerIndex].latitude),
+                    route[currentMarkerIndex].longitude + fraction * (nextPosition.longitude - route[currentMarkerIndex].longitude)
+                )
+                // Mover el marcador a la posición actual
+                markerAnimated.position(currentPosition)
+                //map.clear()
+                currentMaker!!.remove()
+                currentMaker = map.addMarker(markerAnimated);
+
+
+
+                // Si el marcador llega al siguiente marcador, pasar al siguiente marcador
+                if (fraction >= 1f) {
+                    currentMarkerIndex++
+                    //animator.startDelay = 2000 // Esperar 2 segundos antes de iniciar la siguiente animación
+                    animator.start()
+                }
+
+            }
+        }
+        animator.start()*/
+    }
+
+
 
     override fun onMapReady(googleMap: GoogleMap) {
 
