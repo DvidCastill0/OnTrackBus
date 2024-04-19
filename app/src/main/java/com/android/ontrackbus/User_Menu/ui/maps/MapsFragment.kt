@@ -13,6 +13,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.location.Location
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.os.SystemClock
@@ -59,16 +60,29 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.logging.Handler
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
@@ -167,12 +181,21 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private var CantidadDeParadas = 0
 
     private lateinit var loginBundle: Bundle
+    private var markersCount = 0 // Contador de marcadores generados
+    private var list_MarkersMoves: ArrayList<Int> = ArrayList<Int>()
+    private var load_Polylynes = true
+
+    private var IA_URL : String = ""
+    private var jsonObject = JSONObject()
     //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
             var loginBundleSaved = ViewModelProvider(requireActivity())[MenuViewModel::class.java]
             loginBundle = loginBundleSaved!!.loginBundle;
+
+            IA_URL = loginBundle.getString("URL_IA")!!
+
             //segundo parametro Cantidad de rutas este parametro si es obligatorio y siempre recibe osea que es obligatorio
             CantidadDeRutas = loginBundle.getInt("CantidadDeRutas")
 
@@ -400,7 +423,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                         //intent para iniciar la actividad siguiente
                         val intentBuscarOtraruta = Intent(activity, pasadorSpinner::class.java)
                         // Agregas el Bundle al Intent e inicias ActivityB
-                        intentBuscarOtraruta.putExtras(bundleRecargar)
+                         .putExtras(bundleRecargar)
                         activity!!.finish()
                         startActivity(intentBuscarOtraruta)
                     }
@@ -456,7 +479,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     bundleRecargar.putString("Ruta$contadorRD0", rutasdisponibles[contadorRD])
                     contadorRD0++
                 }*/
-
+                load_Polylynes = true
                 turnOnValueListenerParadas()
                 //intent para iniciar la actividad siguiente
                 /*val intentBuscarOtraruta = Intent(activity, pasadorSpinner::class.java)
@@ -534,208 +557,360 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     // Declara tu ValueEventListener
     val valueEventListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            if (dataSnapshot.exists()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                onDataChangeSuspend(dataSnapshot)
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {}
+    }
+
+
+    private suspend fun onDataChangeSuspend(dataSnapshot: DataSnapshot) {
+        // Lógica que necesitas realizar dentro de onDataChange
+        CoroutineScope(Dispatchers.Main).launch{
+             if (dataSnapshot.exists()) {
+
+            if(load_Polylynes){
+                // Ejecutar la corutina para obtener los datos
+                /*launch(Dispatchers.Main){
+                try {
+                        val jsonResponse = getDataIA()
+                        jsonObject = JSONObject(jsonResponse)
+                        // Acceder a los datos del objeto JSON
+                        println("Response JSON: $jsonResponse")
+                    } catch (e: Exception) {
+                        println("Error: ${e.message}")
+                    }
+                }
+                //HttpAsyncTask().execute()*/
+            }
+
+            /*val itinerarioArray = jsonObject.getJSONArray("itinerario")
+            val primerElemento = itinerarioArray.getJSONObject(0)
+            val claves : MutableIterator<String>  = primerElemento.keys()
+            // Convertir el iterador a una lista
+            val clavesList = claves.asSequence().toList()*/
+
+
+            // polylinesPruebas limpiar
+            // Eliminar polilíneas anteriores
+            if(load_Polylynes){
+                for (polyline in polylinesPruebas) {
+                    polyline.remove()
+                }
+                polylinesPruebas.clear()
+
+
                 // Eliminar polilíneas anteriores
                 for (polyline in realTimePolylines) {
                     polyline.remove()
                 }
                 realTimePolylines.clear()
+            }
 
-                // Eliminar marcadores anteriores
-                for (marker in realTimeMarkers) {
-                    marker.remove()
+
+            // Eliminar marcadores anteriores
+            for (marker in realTimeMarkers) {
+                marker.remove()
+            }
+            realTimeMarkers.clear()
+
+            // Eliminar las latitudes y longitudes guardadas
+            route.clear()
+            //Eliminar los marker options
+            realTimeMarkerOptions.clear()
+
+            // Obtener las claves de los hijos y convertirlas en una lista
+            val keys = dataSnapshot.children.map { it.key }.toList()
+
+            // Ordenar las claves personalizadamente
+            var sortedKeys = keys.sortedWith(Comparator { key1, key2 ->
+                // Extraer los números de los nombres de las rutas
+                val num1 = key1?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
+                val num2 = key2?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
+
+                // Comparar los números
+                when {
+                    num1 != num2 -> num1 - num2
+                    else -> key1.compareTo(key2) // Si los números son iguales, comparar los nombres completos
                 }
-                realTimeMarkers.clear()
+            })
 
-                // Eliminar las latitudes y longitudes guardadas
-                route.clear()
-                //Eliminar los marker options
-                realTimeMarkerOptions.clear()
+            var index = 0;
+            //sortedKeys = sortedKeys.reversed()
+            // Iterar sobre los datos recibidos
+            for (key in sortedKeys) {
+                oRutas = dataSnapshot.child(key!!).getValue(Rutas::class.java)!!
+                val latitud = oRutas.getLatitud() ?: continue // Si la latitud es nula, pasamos al siguiente marcador
+                val longitud = oRutas.getLongitud() ?: continue // Si la longitud es nula, pasamos al siguiente marcador
+                val tittleu = oRutas.getTittle()
+                val snnipetu = oRutas.getSnnipet()
 
-                // Obtener las claves de los hijos y convertirlas en una lista
-                val keys = dataSnapshot.children.map { it.key }.toList()
+                // Calculamos el marcador de tiempo
+                val formateadorfecha = SimpleDateFormat("HH:mm:ss d-MM-yyyy")
+                val fechaDate = Date()
+                val fecha = formateadorfecha.format(fechaDate)
+                var fechaactual: Date? = null
+                var fechaMarcador: Date? = null
+                var fechaIA: Date ? = null
+                try {
+                    fechaactual = formateadorfecha.parse(fecha)
+                    fechaMarcador = formateadorfecha.parse(snnipetu)
+                    // Crear un objeto SimpleDateFormat con el formato deseado
+                    //val formatoSimple = SimpleDateFormat("d-MM-yyyy")
+                    // Formatear la fecha como una cadena de texto
+                    //val fechaFormateada = formatoSimple.format(fecha)
+                    //val fechaNew = clavesList[index]
+                    /*val partes = fechaNew.split(":")
+                    val horaC = partes[0].toInt()
+                    val minutoC = partes[1].toInt()
 
-                // Ordenar las claves personalizadamente
-                val sortedKeys = keys.sortedWith(Comparator { key1, key2 ->
-                    // Extraer los números de los nombres de las rutas
-                    val num1 = key1?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
-                    val num2 = key2?.replace(Regex("[^0-9]"), "")!!.toIntOrNull() ?: Int.MIN_VALUE
+                    val horaFormateada = String.format("%02d", horaC)
+                    val minutoFormateado = String.format("%02d", minutoC)
 
-                    // Comparar los números
-                    when {
-                        num1 != num2 -> num1 - num2
-                        else -> key1.compareTo(key2) // Si los números son iguales, comparar los nombres completos
-                    }
-                })
+                    fechaMarcador = formateadorfecha.parse("$horaFormateada:$minutoFormateado:00 $fechaFormateada")*/
+                } catch (e: ParseException) {
+                    e.printStackTrace()
+                }
 
-                var index = 0;
-                // Iterar sobre los datos recibidos
-                for (key in sortedKeys) {
-                    oRutas = dataSnapshot.child(key!!).getValue(Rutas::class.java)!!
-                    val latitud = oRutas.getLatitud() ?: continue // Si la latitud es nula, pasamos al siguiente marcador
-                    val longitud = oRutas.getLongitud() ?: continue // Si la longitud es nula, pasamos al siguiente marcador
-                    val tittleu = oRutas.getTittle()
-                    val snnipetu = oRutas.getSnnipet()
+                // Calculamos la diferencia de tiempo
+                val diferenciaEn_ms = fechaactual!!.time - fechaMarcador!!.time
+                val minutos = diferenciaEn_ms / 60000
 
-                    // Calculamos el marcador de tiempo
-                    val formateadorfecha = SimpleDateFormat("HH:mm:ss d-MM-yyyy")
-                    val fechaDate = Date()
-                    val fecha = formateadorfecha.format(fechaDate)
-                    var fechaactual: Date? = null
-                    var fechaMarcador: Date? = null
-                    try {
-                        fechaactual = formateadorfecha.parse(fecha)
-                        fechaMarcador = formateadorfecha.parse(snnipetu)
-                    } catch (e: ParseException) {
-                        e.printStackTrace()
-                    }
-
-                    // Calculamos la diferencia de tiempo
-                    val diferenciaEn_ms = fechaactual!!.time - fechaMarcador!!.time
-                    val minutos = diferenciaEn_ms / 60000
-
-                    // Determinamos el icono y el texto del marcador según el tiempo transcurrido
-                    var iconu = "sin_abordar"
-                    var snnipethaceuanto = ""
-                    when {
-                        minutos < 1 -> {
-                            iconu = "abordado_menos_min"
-                            val segundos = diferenciaEn_ms / 1000
-                            snnipethaceuanto = if (segundos == 1L) {
-                                "Ruta abordada hace: $segundos Segundo."
-                            } else {
-                                "Ruta abordada hace: $segundos Segundos."
-                            }
-                        }
-                        minutos < 60 -> {
-                            iconu = "abordado_mas_min"
-                            snnipethaceuanto = if (minutos == 1L) {
-                                "Ruta abordada hace: $minutos Minuto."
-                            } else {
-                                "Ruta abordada hace: $minutos Minutos."
-                            }
-                        }
-                        minutos >= 60 && minutos < 1440 -> {
-                            val horas = minutos / 60
-                            iconu = "sin_abordar" // Cambia el icono según tus necesidades
-                            snnipethaceuanto = if (horas == 1L) {
-                                "Ruta abordada hace: $horas Hora."
-                            } else {
-                                "Ruta abordada hace: $horas Horas."
-                            }
-                        }
-                        minutos >= 1440 -> {
-                            val dias = minutos / 1440
-                            iconu = "sin_abordar" // Cambia el icono según tus necesidades
-                            snnipethaceuanto = if (dias == 1L) {
-                                "Ruta abordada hace: $dias Día."
-                            } else {
-                                "Ruta abordada hace: $dias Días."
-                            }
+                // Determinamos el icono y el texto del marcador según el tiempo transcurrido
+                var iconu = "sin_abordar"
+                var snnipethaceuanto = ""
+                when {
+                    minutos < 1 -> {
+                        iconu = "abordado_menos_min"
+                        val segundos = diferenciaEn_ms / 1000
+                        snnipethaceuanto = if (segundos == 1L) {
+                            "Ruta abordada hace: $segundos Segundo."
+                        } else {
+                            "Ruta abordada hace: $segundos Segundos."
                         }
                     }
+                    minutos < 60 -> {
+                        iconu = "abordado_mas_min"
+                        snnipethaceuanto = if (minutos == 1L) {
+                            "Ruta abordada hace: $minutos Minuto."
+                        } else {
+                            "Ruta abordada hace: $minutos Minutos."
+                        }
+                    }
+                    minutos >= 60 && minutos < 1440 -> {
+                        val horas = minutos / 60
+                        iconu = "sin_abordar" // Cambia el icono según tus necesidades
+                        snnipethaceuanto = if (horas == 1L) {
+                            "Ruta abordada hace: $horas Hora."
+                        } else {
+                            "Ruta abordada hace: $horas Horas."
+                        }
+                    }
+                    minutos >= 1440 -> {
+                        val dias = minutos / 1440
+                        iconu = "sin_abordar" // Cambia el icono según tus necesidades
+                        snnipethaceuanto = if (dias == 1L) {
+                            "Ruta abordada hace: $dias Día."
+                        } else {
+                            "Ruta abordada hace: $dias Días."
+                        }
+                    }
+                }
 
-                    // Agregamos el marcador al mapa
-                    val imageBitmap = BitmapFactory.decodeResource(
-                        activity!!.resources,
-                        activity!!.resources.getIdentifier(
-                            iconu,
-                            "drawable",
-                            vistaMapasEnTiempoReal!!.context.packageName
-                        )
+                // Agregamos el marcador al mapa
+                val imageBitmap = BitmapFactory.decodeResource(
+                    requireActivity().resources,
+                    requireActivity().resources.getIdentifier(
+                        iconu,
+                        "drawable",
+                        vistaMapasEnTiempoReal!!.context.packageName
+                    )
+                )
+
+                route.add(LatLng(latitud, longitud))
+                val markerOptions = MarkerOptions()
+                    .position(LatLng(latitud, longitud))
+                    .anchor(0.5f, 0.5f)
+                    .title(tittleu)
+                    .snippet(snnipethaceuanto)
+                    .icon(BitmapDescriptorFactory.fromBitmap(imageBitmap))
+                realTimeMarkerOptions.add(markerOptions!!)
+                val marker = mMap!!.addMarker(markerOptions)
+                realTimeMarkers.add(marker!!)
+
+
+                // Conectamos el último marcador con el marcador actual (si no es el primero)
+                if (index > 0  && load_Polylynes) {
+                    val previousMarker = realTimeMarkers[index - 1]
+                    val currentMarker = realTimeMarkers[index]
+
+                    val previousLatLng = previousMarker.position
+                    val currentLatLng = currentMarker.position
+                    // Calcula un punto intermedio entre las dos ubicaciones
+                    val middleLatLng = LatLng(
+                        (previousLatLng.latitude + currentLatLng.latitude) / 2,
+                        (previousLatLng.longitude + currentLatLng.longitude) / 2
                     )
 
-                    route.add(LatLng(latitud, longitud))
-                    val markerOptions = MarkerOptions()
-                        .position(LatLng(latitud, longitud))
-                        .anchor(0.5f, 0.5f)
-                        .title(tittleu)
-                        .snippet(snnipethaceuanto)
-                        .icon(BitmapDescriptorFactory.fromBitmap(imageBitmap))
-                    realTimeMarkerOptions.add(markerOptions!!)
-                    val marker = mMap!!.addMarker(markerOptions)
-                    realTimeMarkers.add(marker!!)
+                    val arrowColor =
+                        Color.argb(255, 0, 160, 207) // change this if you want another color (Color.BLUE)
 
-
-                    // Conectamos el último marcador con el marcador actual (si no es el primero)
-                    if (index > 0) {
-                        val previousMarker = realTimeMarkers[index - 1]
-                        val currentMarker = realTimeMarkers[index]
-
-                        val previousLatLng = previousMarker.position
-                        val currentLatLng = currentMarker.position
-                        // Calcula un punto intermedio entre las dos ubicaciones
-                        val middleLatLng = LatLng(
-                            (previousLatLng.latitude + currentLatLng.latitude) / 2,
-                            (previousLatLng.longitude + currentLatLng.longitude) / 2
-                        )
-
-                        val arrowColor =
-                            Color.argb(255, 0, 160, 207) // change this if you want another color (Color.BLUE)
-
-                        val lineColor = Color.argb(255, 0, 160, 207)
-                        val endCapIcon = getEndCapIcon(context, arrowColor)
-                        val polylineOptions = mMap?.addPolyline(
-                            PolylineOptions()
-                                .add(previousMarker.position, currentMarker.position)
-                                .add(middleLatLng)
-                                .geodesic(true)
-                                .startCap(RoundCap())
-                                .endCap(CustomCap(endCapIcon!!, 30F))
-                                .jointType(JointType.ROUND)
-                                .width(20f)
-                                .color(lineColor) // Color azul semitransparente
-                                .zIndex(1f) // Asegura que la flecha esté encima de la polyline
-                        )
-                        realTimePolylines.add(polylineOptions!!)
-
-                        val polylineOptions2 = PolylineOptions()
-                            .add(currentMarker.position,previousMarker.position )
+                    val lineColor = Color.argb(255, 0, 160, 207)
+                    val endCapIcon = getEndCapIcon(context, arrowColor)
+                    val polylineOptions = mMap?.addPolyline(
+                        PolylineOptions()
+                            .add(previousMarker.position, middleLatLng)
                             .geodesic(true)
                             .startCap(RoundCap())
                             .endCap(CustomCap(endCapIcon!!, 30F))
                             .jointType(JointType.ROUND)
                             .width(20f)
                             .color(lineColor) // Color azul semitransparente
-                            .zIndex(1f)
+                            .zIndex(1f) // Asegura que la flecha esté encima de la polyline
+                    )
+                    realTimePolylines.add(polylineOptions!!)
 
-                        val polyline = mMap!!.addPolyline(polylineOptions2)
+                    val polylineOptions2 = PolylineOptions()
+                        .add(middleLatLng, currentMarker.position)
+                        .geodesic(true)
+                        .startCap(RoundCap())
+                        .endCap(CustomCap(endCapIcon!!, 30F))
+                        .jointType(JointType.ROUND)
+                        .width(20f)
+                        .color(lineColor) // Color azul semitransparente
+                        .zIndex(1f)
 
-                        // Ahora, si deseas almacenar la referencia a la Polyline para usarla más tarde o eliminarla del mapa, puedes hacerlo
-                        polylinesPruebas.add(polyline)
-                        polyline.remove()
+                    val polyline = mMap!!.addPolyline(polylineOptions2)
+                    realTimePolylines.add(polyline!!)
 
-                    }
-                    index++
+                    // Ahora, si deseas almacenar la referencia a la Polyline para usarla más tarde o eliminarla del mapa, puedes hacerlo
+                    polylinesPruebas.add(polyline)
+                    //polyline.remove()
+
+
                 }
-
-                // Animar marcador a lo largo de la ruta
-                markers = route.map { latLng ->
-                    MarkerOptions().position(latLng).title("Marker")
-                }
-                // Esperar 4 segundos antes de iniciar la animación en un hilo en segundo plano
-                /*GlobalScope.launch {
-                    delay(4000)
-                    withContext(Dispatchers.Main) {
-                        animateMarker(mMap!!, markers!!)
-                    }
-                }*/
-                // Iniciar la animación con Coroutine
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(4000)
-                    animateMarker(mMap!!)
-                }
-                progressDialog!!.dismiss()
+                index++
             }
 
+            // Animar marcador a lo largo de la ruta
+            /*markers = route.map { latLng ->
+                MarkerOptions().position(latLng).title("Marker")
+            }*/
+            // Esperar 4 segundos antes de iniciar la animación en un hilo en segundo plano
+            /*GlobalScope.launch {
+                delay(4000)
+                withContext(Dispatchers.Main) {
+                    animateMarker(mMap!!, markers!!)
+                }
+            }*/
 
+            // Iniciar marcadores menores a 5 segundos
+            anadirMarcadores(sortedKeys!!,dataSnapshot!!);
+            progressDialog!!.dismiss()
+            load_Polylynes = false
         }
-
-        override fun onCancelled(databaseError: DatabaseError) {}
+        }
     }
 
-    fun moveMarkerAlongPolyline(polylineList: List<Polyline>, marker: Marker) {
-        val totalPoints = polylineList.sumBy { it.points.size }
+    fun anadirMarcadores(sortedKeys: List<String?>, dataSnapshot: DataSnapshot){
+        // Iterar sobre los datos recibidos
+        var contMark = 0;
+        for (key in sortedKeys) {
+            oRutas = dataSnapshot.child(key!!).getValue(Rutas::class.java)!!
+            val latitud = oRutas.getLatitud() ?: continue // Si la latitud es nula, pasamos al siguiente marcador
+            val longitud = oRutas.getLongitud() ?: continue // Si la longitud es nula, pasamos al siguiente marcador
+            val snnipetu = oRutas.getSnnipet()
+
+            // Calculamos el marcador de tiempo
+            val formateadorfecha = SimpleDateFormat("HH:mm:ss d-MM-yyyy")
+            val fechaDate = Date()
+            val fecha = formateadorfecha.format(fechaDate)
+            var fechaactual: Date? = null
+            var fechaMarcador: Date? = null
+            try {
+                fechaactual = formateadorfecha.parse(fecha)
+                fechaMarcador = formateadorfecha.parse(snnipetu)
+            } catch (e: ParseException) {
+                e.printStackTrace()
+            }
+
+            // Calculamos la diferencia de tiempo
+            val diferenciaEn_ms = fechaactual!!.time - fechaMarcador!!.time
+            val segundos = diferenciaEn_ms / 1000
+
+            if(contMark > 110){
+                var hola = ""
+            }
+            if (segundos < 5 && markersCount < 3 && !list_MarkersMoves.contains(contMark)) { // Verificar si el tiempo transcurrido es menos de 5 segundos y no hemos generado más de 3 marcadores
+                // Agregamos el marcador al mapa
+               /* val tittleu = oRutas.getTittle()
+                val snnipethaceuanto = "Ruta abordada hace: $segundos segundos."
+                val iconu = "abordado_menos_min"
+
+                val imageBitmap = BitmapFactory.decodeResource(
+                    requireActivity().resources,
+                    requireActivity().resources.getIdentifier(
+                        iconu,
+                        "drawable",
+                        vistaMapasEnTiempoReal!!.context.packageName
+                    )
+                )
+
+                route.add(LatLng(latitud, longitud))
+                val markerOptions = MarkerOptions()
+                    .position(LatLng(latitud, longitud))
+                    .anchor(0.5f, 0.5f)
+                    .title(tittleu)
+                    .snippet(snnipethaceuanto)
+                    .icon(BitmapDescriptorFactory.fromBitmap(imageBitmap))
+                realTimeMarkerOptions.add(markerOptions!!)
+                val marker = mMap!!.addMarker(markerOptions)
+                realTimeMarkers.add(marker!!)*/
+                // Iniciar la animación con Coroutine
+                var nlist = route.asReversed()
+                if(contMark < nlist.count()){
+                    CoroutineScope(Dispatchers.Main).launch {
+                        animateMarker(mMap!!, nlist[contMark], contMark)
+                    }
+                }else{
+                    println("ErrorT: salio del index: "+contMark+" keys lenght: "+sortedKeys.count() + " Routes as reversed: "+nlist.count())
+                }
+
+                list_MarkersMoves.add(contMark)
+                markersCount++ // Incrementar el contador de marcadores generados
+            }
+
+            if (markersCount >= 3) {
+                break // Si ya hemos generado 3 marcadores, salir del bucle
+            }
+
+            if(contMark < 119){
+                if(contMark==118){
+                    var hola2 = ""
+                }
+
+                contMark++
+            }else{
+                contMark = 119
+            }
+
+        }
+    }
+
+    fun dividePolylineList(polylineList: List<Polyline>): List<Polyline> {
+        val dividedPolylineList = mutableListOf<Polyline>()
+        polylineList.forEach { polyline ->
+            val dividedPolyline = dividePolyline(polyline)
+            dividedPolylineList.add(dividedPolyline)
+        }
+        return dividedPolylineList
+    }
+
+    fun moveMarkerAlongPolyline(polylineList: List<Polyline>, marker: Marker, numMarker: Int, map: GoogleMap) {
+        //val totalPoints = polylineList.sumBy { it.points.size }
+        val totalPoints = polylineList.count()
 
         Toast.makeText(
             activity,
@@ -753,11 +928,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     val startPoint = polylineList.map { it.points }.flatten()[index]
                     val endPoint = polylineList.map { it.points }.flatten()[nextIndex]
 
+
                     val startPosition = LatLng(startPoint.latitude, startPoint.longitude)
                     val endPosition = LatLng(endPoint.latitude, endPoint.longitude)
 
+                    map.moveCamera(CameraUpdateFactory.newLatLng(startPosition))
+
                     val valueAnimator = ValueAnimator.ofFloat(0f, 1f)
-                    valueAnimator.duration = 300 // Change duration as needed
+                    valueAnimator.duration = 14000 // Change duration as needed
 
                     valueAnimator.interpolator = LinearInterpolator()
 
@@ -774,19 +952,74 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
                     index++
 
-                    handler.postDelayed(this, 1000) // Change delay as needed
+                    handler.postDelayed(this, 300) // Change delay as needed
+                }else{
+                    marker.remove()
+                    list_MarkersMoves.remove(numMarker)
+                    markersCount--
                 }
             }
         })
     }
 
-    private suspend fun animateMarker(map:  GoogleMap) {
-        // Crear un marcador animado inicial en la primera posición de la ruta
-        val markerAnimated = MarkerOptions().position(route[route.count()-1]).title("Marker")
-        var currentMaker = map.addMarker(markerAnimated);
-        map.moveCamera(CameraUpdateFactory.newLatLng(route[route.count()-1]))
+    fun dividePolyline(polyline: Polyline): Polyline {
+        val newPolylineOptions = PolylineOptions()
+        val points = polyline.points
+        for (i in 0 until points.size - 1) {
+            val startPoint = points[i]
+            val endPoint = points[i + 1]
+            val dividedPoints = divideLine(startPoint, endPoint, 10)
+            dividedPoints.forEach { newPolylineOptions.add(it) }
+        }
+        var res: Polyline? = null
+        res = mMap!!.addPolyline(newPolylineOptions)
+        //res.remove()
+        return res
+    }
 
-        val mHandler = android.os.Handler(Looper.getMainLooper())
+    fun divideLine(startPoint: LatLng, endPoint: LatLng, segments: Int): List<LatLng> {
+        val dividedPoints = mutableListOf<LatLng>()
+        val latStep = (endPoint.latitude - startPoint.latitude) / segments
+        val lngStep = (endPoint.longitude - startPoint.longitude) / segments
+        for (i in 0 until segments) {
+            val lat = startPoint.latitude + i * latStep
+            val lng = startPoint.longitude + i * lngStep
+            dividedPoints.add(LatLng(lat, lng))
+        }
+        dividedPoints.add(endPoint) // Agregar el punto final
+        return dividedPoints
+    }
+
+    fun get3Polylines(index: Int): List<Polyline> {
+        var listPol  = dividePolylineList(polylinesPruebas.asReversed())
+        //val startIndex = ((index*10) )
+        //val endIndex = (((index*10)) + 3)
+        val startIndex = (index )
+        val endIndex = (index + 3)
+
+        val subPolylineList: List<Polyline> = if (startIndex >= 0 && endIndex <= listPol.size) {
+            listPol.subList(startIndex, endIndex).toList()
+            //listPol.subList(endIndex, startIndex).toList()
+        } else {
+            // Si el endIndex está fuera de los límites, obtener todas las polilíneas desde startIndex hasta el final
+            if (startIndex >= 0 && startIndex < listPol.size) {
+                listPol.subList(startIndex, listPol.size).toList()
+            } else {
+                emptyList() // Si startIndex también está fuera de los límites, retornar una lista vacía
+            }
+        }
+        return subPolylineList
+    }
+
+    private suspend fun animateMarker(map:  GoogleMap, cordToSelect: LatLng, numMarker: Int) {
+        //var coordsToInit = route[route.count()-1]
+        var coordsToInit = cordToSelect
+        // Crear un marcador animado inicial en la primera posición de la ruta
+        val markerAnimated = MarkerOptions().position(coordsToInit).title("IA Bus")
+        var currentMaker = map.addMarker(markerAnimated);
+        //map.moveCamera(CameraUpdateFactory.newLatLng(coordsToInit))
+
+        /*val mHandler = android.os.Handler(Looper.getMainLooper())
 
         val frameArray = intArrayOf(R.drawable.frame01, R.drawable.frame10, R.drawable.frame20,R.drawable.frame21, R.drawable.frame39, R.drawable.frame48 ) // Aquí debes incluir tus imágenes
 
@@ -805,9 +1038,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 index = (index + 1) % frameArray.size
                 mHandler.postDelayed(this, 1000) // Cambia la imagen cada segundo (1000 ms)
             }
-        })
+        })*/
 
-        moveMarkerAlongPolyline(polylinesPruebas.asReversed(), currentMaker!!)
+        moveMarkerAlongPolyline(get3Polylines(numMarker) , currentMaker!!,numMarker, map)
 
         // Inicializar el índice del marcador actual
         /*var currentMarkerIndex = 0
@@ -1125,5 +1358,183 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     lnguser = location.longitude
                 }
             }
+    }
+
+    class HttpAsyncTask : AsyncTask<Unit, Unit, String>() {
+        override fun doInBackground(vararg params: Unit?): String {
+            val client = OkHttpClient()
+            val requestBody = """
+            {
+                "camiones": [
+                    {
+                        "horario": [
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 1 },
+                            { "hora": 7, "minuto": 1 },
+                            { "hora": 7, "minuto": 2 },
+                            { "hora": 7, "minuto": 3 }
+                        ],
+                        "fin": { "hora": 20, "minuto": 10 },
+                        "id": 1,
+                        "orientacion": 1
+                    },
+                    {
+                        "horario": [
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 0 },
+                            { "hora": 7, "minuto": 1 },
+                            { "hora": 7, "minuto": 1 },
+                            { "hora": 7, "minuto": 2 },
+                            { "hora": 7, "minuto": 3 }
+                        ],
+                        "fin": { "hora": 20, "minuto": 10 },
+                        "id": 1,
+                        "orientacion": 2
+                    }
+                ]
+            }
+        """.trimIndent().toRequestBody("application/json".toMediaType())
+
+            val request = Request.Builder()
+                .url("http://192.168.1.3:8000/horario/multi")
+                .post(requestBody)
+                .build()
+
+            return try {
+                val response = client.newCall(request).execute()
+                if (!response.isSuccessful)
+                    throw IOException("Unexpected code $response")
+                response.body?.string() ?: ""
+            } catch (e: IOException) {
+                println("Pruebaa no")
+                e.printStackTrace()
+                ""
+            }
+        }
+
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            // Aquí maneja el resultado de la solicitud
+            println(result)
+            println("Pruebaa si" + result)
+        }
+    }
+
+
+    suspend fun consultarNodoFirebase(nodo: String): Map<String, Any>? {
+        val referencia = OTBReference?.child("Rutas")?.child(nodo)
+
+        return try {
+            val dataSnapshot = referencia?.get()?.await()
+            dataSnapshot?.value as? Map<String, Any>
+        } catch (e: Exception) {
+            // Manejar cualquier error que pueda ocurrir durante la consulta
+            null
+        }
+    }
+
+    suspend fun getIAURL(): String? {
+        val referencia = OTBReference?.child("Tools")
+
+        return try {
+            val dataSnapshot = referencia?.get()?.await()
+            (dataSnapshot?.value  as? Map<String, Any>)!!.get("URL_IA").toString()
+        } catch (e: Exception) {
+            // Manejar cualquier error que pueda ocurrir durante la consulta
+            null
+        }
+    }
+
+    // Funcion para obtener los datos de la IA en Docker local
+    suspend fun getDataIA(): String {
+        return withContext(Dispatchers.IO) {
+            val infoRuta: Map<String, Any>? = consultarNodoFirebase(rutaSeleccionadaNumero!!)
+            val orientacionIA = if(orientacionRuta=="ida") 1 else 2
+            val idIA = infoRuta!!.get("Id_IA")!!.toString().toInt()
+            val HoraFin = infoRuta!!.get("HoraFin")!!.toString().split(":")
+            val HoraF = HoraFin[0].toInt()
+            val MinutoF = HoraFin[1].toInt()
+            val FrecuenciaPasada = infoRuta!!.get("FrecuenciaPasada")!!.toString().toInt()
+            val PromedioParadas = infoRuta!!.get("PromedioParadas")!!.toString().toInt()
+            val client = OkHttpClient()
+            val idaListInt = (infoRuta!!.get("ida")!! as Map<String, Any>?)!!.size
+
+            // Obtener la hora actual
+            val horaActual = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                LocalDateTime.now()
+            } else {
+                TODO("VERSION.SDK_INT < O")
+            }
+
+            // Restar 20 minutos a la hora actual
+            var horaMenos20Minutos = horaActual.minus(FrecuenciaPasada.toLong(), ChronoUnit.MINUTES)
+            // Obtener la hora y los minutos en enteros
+
+
+            var horarioos = ""
+            for(i in 0 until  idaListInt){
+                val horaAct = horaMenos20Minutos.hour
+                val minutoAct = horaMenos20Minutos.minute
+                val coma = if (i <idaListInt-1) "," else ""
+                horarioos += "{ \"hora\": "+horaAct+", \"minuto\": "+minutoAct+" }$coma\n"
+                horaMenos20Minutos = horaMenos20Minutos.plus(PromedioParadas.toLong(), ChronoUnit.SECONDS)
+            }
+
+            val requestBodyString = """
+            {
+                "camiones": [
+                    {
+                        "horario": [
+                            $horarioos
+                        ],
+                        "fin": { "hora": $HoraF, "minuto": $MinutoF },
+                        "id": $idIA,
+                        "orientacion": $orientacionIA
+                    }
+                ]
+            }
+        """.trimIndent()
+
+            val requestBody = requestBodyString.toRequestBody("application/json".toMediaType())
+
+            IA_URL = getIAURL()!!
+
+            val request = Request.Builder()
+                .url(IA_URL+"/horario/multi")
+                .post(requestBody)
+                .build()
+
+            val deferred = CompletableDeferred<String>()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    if (!response.isSuccessful) {
+                        deferred.completeExceptionally(IOException("Error: ${response.code}"))
+                        return
+                    }
+
+                    val responseBody = response.body
+                    if (responseBody != null) {
+                        try {
+                            val jsonResponse = responseBody.string()
+                            deferred.complete(jsonResponse)
+                        } catch (e: IOException) {
+                            deferred.completeExceptionally(e)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    deferred.completeExceptionally(e)
+                }
+            })
+
+            deferred.await()
+        }
     }
 }

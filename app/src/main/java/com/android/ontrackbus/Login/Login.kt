@@ -27,6 +27,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.regex.Pattern
 
 class Login : Fragment() {
@@ -276,6 +280,16 @@ class Login : Fragment() {
                                         }
                                         bundleSesion.putInt("CantidadDeParadas", contadorParadas)
 
+                                        var urlIA:String = ""
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            try {
+                                                urlIA = getIAURL()!!
+                                            } catch (e: Exception) {
+                                                println("Error: ${e.message}")
+                                            }
+                                        }
+                                        bundleSesion.putString("URL_IA", urlIA)
+
                                         // Agregas el Bundle al Intent e inicias ActivityB
                                         intentMenuUsuario.putExtras(bundleSesion)
                                         progressDialog!!.dismiss()
@@ -436,6 +450,15 @@ class Login : Fragment() {
                             }
                             bundleSesion.putInt("CantidadDeParadas", contadorParadas)
 
+                            var urlIA:String = ""
+                            CoroutineScope(Dispatchers.Main).launch {
+                                try {
+                                    urlIA = getIAURL()!!
+                                } catch (e: Exception) {
+                                    println("Error: ${e.message}")
+                                }
+                            }
+                            bundleSesion.putString("URL_IA", urlIA)
 
                             // Agregas el Bundle al Intent e inicias ActivityB
                             intentMenuUsuario.putExtras(bundleSesion)
@@ -461,6 +484,16 @@ class Login : Fragment() {
             ).show()
         }
     }
+    suspend fun getIAURL(): String? {
+        val referencia = OTBReference?.child("Tools")
 
+        return try {
+            val dataSnapshot = referencia?.get()?.await()
+            (dataSnapshot?.value  as? Map<String, Any>)!!.get("URL_IA").toString()
+        } catch (e: Exception) {
+            // Manejar cualquier error que pueda ocurrir durante la consulta
+            null
+        }
+    }
     //endregion
 }

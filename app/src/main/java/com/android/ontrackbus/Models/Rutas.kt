@@ -3,6 +3,11 @@ package com.android.ontrackbus.Models
 public class Rutas {
 
     private var NombreDeRuta: String? = null
+    private var FrecuenciaPasada: Int? = null
+    private var HoraFin: String? = null
+    private var HoraInicio: String? = null
+    private var Id_IA: Int? = null
+    private var PromedioParadas: Int? = null
 
 
     //cercania de ruta
@@ -80,5 +85,45 @@ public class Rutas {
 
     fun setLnguser(lnguser: Double?) {
         this.lnguser = lnguser
+    }
+
+
+    fun getFrecuenciaPasada(): Int? {
+        return this.FrecuenciaPasada
+    }
+
+    fun setFrecuenciaPasada(frecuenciaPasada: Int?) {
+        this.FrecuenciaPasada = frecuenciaPasada
+    }
+
+    fun getHoraFin(): String? {
+        return this.HoraFin
+    }
+
+    fun setHoraFin(horaFin: String?) {
+        this.HoraFin = horaFin
+    }
+
+    fun getHoraInicio(): String? {
+        return this.HoraInicio
+    }
+
+    fun setHoraInicio(horaInicio: String?) {
+        this.HoraInicio = horaInicio
+    }
+
+    fun getId_IA(): Int? {
+        return this.Id_IA
+    }
+
+    fun setId_IA(id_IA: Int?) {
+        this.Id_IA = id_IA
+    }
+    fun getPromedioParadas(): Int? {
+        return this.PromedioParadas
+    }
+
+    fun setPromedioParadas(promedioParadas: Int?) {
+        this.PromedioParadas = promedioParadas
     }
 }
